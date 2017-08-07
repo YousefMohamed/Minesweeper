@@ -14,6 +14,7 @@ public class Cell {
     private String value;
 
     private Cell[][] myBoard;
+    private ArrayList<Cell> surroundingTiles;
 
     public Cell(int x, int y, boolean isMine, Cell[][] board) {
 
@@ -22,11 +23,11 @@ public class Cell {
         this.isShown = false;
 
         this.myBoard = board;
+        surroundingTiles = new ArrayList<>();
 
         this.xPos = x;
         this.yPos = y;
         symbol = "*";
-
 
         if (this.isMine) {
             value = "#";
@@ -78,8 +79,14 @@ public class Cell {
 
     public ArrayList<Cell> getSurroundingTiles() {
 
-        ArrayList<Cell> surroundingTiles = new ArrayList<>();
+        if (surroundingTiles.isEmpty()) {
+            setSurroundingTiles();
+        }
 
+        return surroundingTiles;
+    }
+
+    private void setSurroundingTiles() {
         for (int i = xPos - 1; i <= xPos + 1; i++) {
             for (int j = yPos - 1; j <= yPos + 1; j++) {
 
@@ -94,8 +101,6 @@ public class Cell {
                 }
             }
         }
-        System.out.println(surroundingTiles);
-        return surroundingTiles;
     }
 
     public String getValue() {
@@ -114,7 +119,9 @@ public class Cell {
 
         int surroundingMines = 0;
 
-        ArrayList<Cell> surroundingTiles = getSurroundingTiles();
+        if (surroundingTiles.isEmpty()) {
+            setSurroundingTiles();
+        }
 
         for (Cell cell : surroundingTiles) {
             if (cell.isMine()) {

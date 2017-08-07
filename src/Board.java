@@ -53,7 +53,7 @@ public class Board {
 
     @Override
     public int hashCode() {
-        return width * length * numOfMines * board.hashCode() + 13;
+        return width * length * numOfMines + 13;
     }
 
     @Override

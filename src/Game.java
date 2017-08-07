@@ -6,7 +6,7 @@ public class Game {
 
     public Game() {
 
-        board = new Board(10, 10, 10);
+        board = new Board(10, 10, 20);
 
         help();
 
@@ -22,6 +22,11 @@ public class Game {
             userInput();
         }
     }
+
+    public static void main(String[] args) {
+        new Game();
+    }
+
 
     public void help() {
         System.out.println();
@@ -63,7 +68,7 @@ public class Game {
 
             case "flag":
 
-                flag(10, 10);
+                flag(9, 9);
                 board.printBoard();
                 break;
 
@@ -81,66 +86,86 @@ public class Game {
     }
 
     void choose(int row, int column) {
-        if (board.getBoard()[row][column].isMine()) {
+        Cell cell = board.getBoard()[row][column];
+        if (cell.isMine()) {
             board.printBoard();
             System.out.println("Lose");
-        } else if (board.getBoard()[row][column].hasValue()) {
+        } else if (cell.hasValue()) {
             board.getBoard()[row][column].show();
             board.printBoard();
-        } else if (!board.getBoard()[row][column].hasValue()) {
-            show(row, column, new ArrayList<>());
+        } else if (!cell.hasValue()) {
+            show(cell, new ArrayList<>(), new ArrayList<>());
         }
     }
 
-    public void show(int row, int column, ArrayList<Cell> queue) {
+    public void show(Cell cell, ArrayList<Cell> queue, ArrayList<Cell> processed) {
 
-        System.out.println(queue);
+        cell.show();
 
         if (queue.isEmpty()) {
-            queue.addAll(board.getBoard()[row][column].getSurroundingTiles());
-            show(queue.get(0).getxPos(), queue.get(0).getyPos(), queue);
-        } else {
-            Cell cell = queue.get(0);
-
-            for (Cell cell2 : cell.getSurroundingTiles()) {
-                if (queue.contains(cell2)) {
-
-                } else if (cell2.isShown()) {
-
+            ArrayList<Cell> surroundingTiles = cell.getSurroundingTiles();
+            for (Cell cell2 : surroundingTiles) {
+                if (!cell2.hasValue() && !cell.isMine()) {
+                    queue.add(cell2);
                 } else if (cell2.hasValue()) {
                     cell2.show();
-                } else if (cell2.isMine()) {
-
-                } else {
-                    queue.add(cell2);
                 }
             }
 
-            cell.show();
+            board.printBoard();
+            System.out.println();
+
+            if (queue.isEmpty()) {
+
+            } else {
+                show(queue.get(0), queue, processed);
+            }
+        } else {
+            for (Cell cell2 : cell.getSurroundingTiles()) {
+                if (queue.contains(cell2)) {
+
+                } else if (processed.contains(cell2)) {
+
+                } else if (!cell2.hasValue() && !cell2.isMine()) {
+                    queue.add(cell2);
+                } else if (cell2.hasValue()) {
+                    cell2.show();
+                } else if (cell2.isShown()) {
+
+                } else if (cell2.isMine()) {
+
+                }
+            }
+
+            processed.add(cell);
             queue.remove(cell);
 
             board.printBoard();
             System.out.println();
 
-            try {
-                show(queue.get(0).getxPos(), queue.get(0).getyPos(), queue);
-            } catch (IndexOutOfBoundsException e) {
-                board.printBoard();
-                System.out.println();
-                return;
+            if (queue.isEmpty()) {
+
+            } else {
+                show(queue.get(0), queue, processed);
             }
         }
+
+        board.printBoard();
+        System.out.println();
+
     }
 
 
     void flag(int row, int column) {
 
-        if (board.getBoard()[row][column].isFlagged()) {
-            board.getBoard()[row][column].setFlagged(false);
+        Cell cell = board.getBoard()[row][column];
+
+        if (cell.isFlagged()) {
+            cell.setFlagged(false);
             return;
         }
 
-        board.getBoard()[row][column].setFlagged(true);
+        cell.setFlagged(true);
 
     }
 
