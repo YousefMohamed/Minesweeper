@@ -1,11 +1,15 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class Cell {
+
+    // the Cells Position
 
     private final int xPos;
     private final int yPos;
 
+    // the Cells Properties
     private final boolean isMine;
     private boolean isFlagged;
     private boolean isShown;
@@ -13,8 +17,10 @@ public class Cell {
     private String symbol;
     private String value;
 
+    // the Cell's surroundings
+
     private Cell[][] myBoard;
-    private ArrayList<Cell> surroundingTiles;
+    private ArrayList<Cell> surroundingCells;
 
     public Cell(int x, int y, boolean isMine, Cell[][] board) {
 
@@ -23,7 +29,7 @@ public class Cell {
         this.isShown = false;
 
         this.myBoard = board;
-        surroundingTiles = new ArrayList<>();
+        surroundingCells = new ArrayList<>();
 
         this.xPos = x;
         this.yPos = y;
@@ -66,27 +72,16 @@ public class Cell {
         return Integer.parseInt(value) > 0;
     }
 
-        /*    1 2 3 4
-            1 * * * *
-		    2 * * * *
-	    	3 * * * *
-		    4 * * * *
+    public ArrayList<Cell> getSurroundingCells() {
 
-		Tile: 3,3
-
-		1st position: i-1, j-1 (2,2), 2nd position: i-1, j (2,3), 3rd position: i-1, j+1 (2,4), 4th position: i, j-1 (3,2)
-		5th position: i, j+1 (3,4), 6th position: i+1, j-1 (4,2), 7th position: i+1, j (4,3), 8th position: i+1, j+1 (4,4)  */
-
-    public ArrayList<Cell> getSurroundingTiles() {
-
-        if (surroundingTiles.isEmpty()) {
-            setSurroundingTiles();
+        if (surroundingCells.isEmpty()) {
+            setSurroundingCells();
         }
 
-        return surroundingTiles;
+        return surroundingCells;
     }
 
-    private void setSurroundingTiles() {
+    private void setSurroundingCells() {
         for (int i = xPos - 1; i <= xPos + 1; i++) {
             for (int j = yPos - 1; j <= yPos + 1; j++) {
 
@@ -94,7 +89,7 @@ public class Cell {
 
                 } else {
                     try {
-                        surroundingTiles.add(myBoard[i][j]);
+                        surroundingCells.add(myBoard[i][j]);
                     } catch (ArrayIndexOutOfBoundsException e) {
                         continue;
                     }
@@ -107,11 +102,16 @@ public class Cell {
         return value;
     }
 
+
+    // Gets the surrounding Cells from getSurroundingCells(), then checks the number of mines in the returned ArrayList.
+
     public void setValue() {
 
         if (isMine) {
             return;
         }
+
+        // if the board contains null then the method will exist (to avoid errors)
 
         if (Arrays.asList(myBoard).contains(null)) {
             return;
@@ -119,11 +119,7 @@ public class Cell {
 
         int surroundingMines = 0;
 
-        if (surroundingTiles.isEmpty()) {
-            setSurroundingTiles();
-        }
-
-        for (Cell cell : surroundingTiles) {
+        for (Cell cell : getSurroundingCells()) {
             if (cell.isMine()) {
                 surroundingMines++;
             }
@@ -138,7 +134,10 @@ public class Cell {
 
     public void setFlagged(boolean flagged) {
         isFlagged = flagged;
-        if (flagged) {
+
+        if (isShown) {
+            return;
+        } else if (isFlagged) {
             symbol = "F";
         } else {
             if (isMine) {
@@ -153,11 +152,22 @@ public class Cell {
 
     @Override
     public int hashCode() {
-        return xPos * yPos * symbol.hashCode() * value.hashCode() * 29 + 6;
+        return Objects.hash(yPos, xPos, isMine, value);
     }
 
     @Override
     public boolean equals(Object obj) {
+        // if obj is the same object as this, no need to process more
+        if (obj == this) {
+            return true;
+        }
+
+        // if obj is null, then it can't equal this
+        // if obj is a different class than this, then they can't be equal
+        if (obj == null || obj.getClass() != getClass()) {
+            return false;
+        }
+
         Cell cell = (Cell) obj;
         return cell.getyPos() == yPos && cell.getxPos() == xPos && cell.isMine() == isMine && cell.getValue().equals(value);
     }
