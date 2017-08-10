@@ -133,21 +133,17 @@ public class Cell {
     }
 
     public void setFlagged(boolean flagged) {
+
         isFlagged = flagged;
 
         if (isShown) {
-            return;
+            System.out.println("Cannot flag.");
         } else if (isFlagged) {
             symbol = "F";
-        } else {
-            if (isMine) {
-                symbol = "#";
-            } else if (isShown) {
-                symbol = value;
-            } else {
-                symbol = "*";
-            }
+        } else if (isFlagged == false) {
+            symbol = "*";
         }
+
     }
 
     @Override

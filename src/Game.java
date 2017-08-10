@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.*;
 
 public class Game {
@@ -6,17 +7,13 @@ public class Game {
 
     public Game(int length, int width, int numOfMines) {
 
-        board = new Board(length, width, numOfMines);
-
         help();
 
         // First click isn't guaranteed to bo safe
-        // TODO: generate the board when the user makes his first choice ( to make sure it's guaranteed to be safe )
-
-        System.out.println("Generating Board");
+        // TODO: create the board when the user makes his first choice.
+        board = new Board(length, width, numOfMines);
 
         start();
-
     }
 
     public void start() {
@@ -26,31 +23,49 @@ public class Game {
     }
 
     public static void main(String[] args) {
-
-        // currently doesn't check if  numOfMines > (length*width)
+        try {
+            new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+        } catch (IOException e) {
+        } catch (InterruptedException exception) {
+        }
 
         Scanner scan = new Scanner(System.in);
-        System.out.print("Length: ");
-        int length = scan.nextInt();
+        try {
+            System.out.print("Length: ");
+            int length = scan.nextInt();
 
-        System.out.print("Width: ");
-        int width = scan.nextInt();
+            System.out.print("Width: ");
+            int width = scan.nextInt();
 
-        System.out.print("Number Of Mines: ");
-        int numOfMines = scan.nextInt();
+            System.out.print("Number Of Mines: ");
 
-        new Game(length, width, numOfMines);
+            int numOfMines = scan.nextInt();
+
+            if (numOfMines > (length * width)) {
+                System.out.println("Invalid  Input. (Number of Mines > (Length*Width))");
+                main(new String[0]);
+            }
+
+            System.out.print("\033[H\033[2J");
+            System.out.flush();
+
+            new Game(length, width, numOfMines);
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input, Please enter a number.");
+            main(new String[0]);
+        }
+
     }
 
 
     public void help() {
         System.out.println();
         System.out.println("Commands:");
-        System.out.println("           \"help\" opens the help menu");
-        System.out.println("           \"choose\" specify which tile you want to check");
-        System.out.println("           \"flag\" specify which tile you want to flag");
-        System.out.println("		   \"restart\" start a new game");
-        System.out.println("		   \"quit\" to quit the game");
+        System.out.println("           Help: Opens the help menu.");
+        System.out.println("           Check: Specify the Cell you want to check.");
+        System.out.println("           Flag: Specify the Cell you want to flag.");
+        System.out.println("		   Restart: Start a new Game.");
+        System.out.println("		   Quit/Exist: Quits the current Game.");
         System.out.println();
     }
 
@@ -58,13 +73,7 @@ public class Game {
         Scanner scan = new Scanner(System.in);
 
         System.out.print("$ ");
-        String userInput;
-
-        userInput = scan.nextLine();
-        userInput = userInput.trim().toLowerCase();
-
-        int row;
-        int column;
+        String userInput = scan.nextLine().trim().toLowerCase();
 
         switch (userInput) {
             case "help":
@@ -72,50 +81,81 @@ public class Game {
                 help();
                 break;
 
-            case "choose":
+            case "check":
+                if (board != null) {
+                    System.out.print("Row: ");
+                    int row = scan.nextInt() - 1;
 
-                System.out.print("Row: ");
-                row = scan.nextInt() - 1;
+                    System.out.print("Column: ");
+                    int column = scan.nextInt() - 1;
 
-                System.out.print("Column: ");
-                column = scan.nextInt() - 1;
+                    if (row > board.getLength() || column > board.getWidth()) {
+                        System.out.println("Invalid Input.");
+                        userInput();
+                    }
 
-                choose(row, column);
-                board.printBoard();
-                break;
-
+                    check(row, column);
+                    if (board != null) {
+                        board.printBoard();
+                    }
+                    break;
+                } else {
+                    System.out.println("Please start a new Game.");
+                    userInput();
+                }
             case "restart":
 
-                // currently doesn't check if  numOfMines > (length*width)
-                System.out.print("Length: ");
-                int length = scan.nextInt();
+                try {
+                    System.out.print("Length: ");
+                    int length = scan.nextInt() - 1;
 
-                System.out.print("Width: ");
-                int width = scan.nextInt();
+                    System.out.print("Width: ");
+                    int width = scan.nextInt() - 1;
 
-                System.out.print("Number Of Mines: ");
-                int numOfMines = scan.nextInt();
+                    System.out.print("Number Of Mines: ");
 
-                restart(length, width, numOfMines);
+                    int numOfMines = scan.nextInt();
+
+                    if (numOfMines > (length * width)) {
+                        System.out.println("Invalid  Input. (Number of Mines > (Length*Width))");
+                        userInput();
+                    }
+
+                    restart(length, width, numOfMines);
+
+                } catch (InputMismatchException e) {
+                    System.out.println("Invalid input, Please enter a number.");
+                    userInput();
+                }
+
                 break;
 
             case "flag":
+                if (board != null) {
+                    System.out.print("Row: ");
+                    int row = scan.nextInt() - 1;
 
-                System.out.print("Row: ");
-                row = scan.nextInt() - 1;
+                    System.out.print("Column: ");
+                    int column = scan.nextInt() - 1;
 
-                System.out.print("Column: ");
-                column = scan.nextInt() - 1;
+                    if (row > board.getLength() || column > board.getWidth()) {
+                        System.out.println("Invalid Input.");
+                        userInput();
+                    }
 
-                flag(row, column);
-                board.printBoard();
-                break;
-
+                    flag(row, column);
+                    board.printBoard();
+                    break;
+                } else {
+                    System.out.println("Please start a new Game.");
+                    userInput();
+                }
             case "quit":
-
                 scan.close();
                 System.exit(0);
-
+            case "exist":
+                scan.close();
+                System.exit(0);
             case "":
                 break;
             default:
@@ -124,22 +164,41 @@ public class Game {
         }
     }
 
-    void choose(int row, int column) {
+    void check(int row, int column) {
+
+        if (row > board.getLength() || column > board.getWidth()) {
+            System.out.println("Invalid Input.");
+            return;
+        }
+
         Cell cell = board.getBoard()[row][column];
+
         if (cell.isMine()) {
             cell.show();
-            System.out.println("Lose");
+            board.printSolvedBoard();
+            System.out.println("You Lose.");
+            board = null;
+        } else if (cell.isShown()) {
+            System.out.println("Already revealed.");
         } else if (cell.hasValue()) {
             cell.show();
+            if (checkWinConditions()) {
+                System.out.println("You Win!");
+                board.printSolvedBoard();
+                board = null;
+            }
         } else if (!cell.hasValue()) {
-            reveal(cell, new ArrayList<>(), new ArrayList<>(), 0);
+            reveal(cell, new ArrayList<>(), new ArrayList<>());
+            if (checkWinConditions()) {
+                System.out.println("You Win!");
+                board.printSolvedBoard();
+                board = null;
+            }
         }
     }
 
-    public void reveal(Cell cell, ArrayList<Cell> queue, ArrayList<Cell> processed, Integer i) {
 
-        // debugging(number of recursions)
-        i++;
+    public void reveal(Cell cell, ArrayList<Cell> queue, ArrayList<Cell> processed) {
 
         cell.show();
 
@@ -154,13 +213,14 @@ public class Game {
                     cell2.show();
                 }
             }
-            System.out.println(i);
+
             if (queue.isEmpty()) {
                 return;
             } else {
-                reveal(queue.get(0), queue, processed, i);
+                reveal(queue.get(0), queue, processed);
                 return;
             }
+
         } else {
             for (Cell cell2 : cell.getSurroundingCells()) {
                 if (queue.contains(cell2)) {
@@ -178,40 +238,59 @@ public class Game {
                 }
             }
 
-            System.out.println(i);
-
             processed.add(cell);
             queue.remove(cell);
 
             if (queue.isEmpty()) {
                 return;
             } else {
-                reveal(queue.get(0), queue, processed, i);
+                reveal(queue.get(0), queue, processed);
                 return;
             }
         }
-
-        // Debugging
-/*     // Unreachable Statements
-        board.printBoard();
-        System.out.println(i);
-*/
     }
 
     // sets isFlagged to true/false depending on its state
 
     void flag(int row, int column) {
 
+        if (row > board.getLength() || column > board.getWidth()) {
+            System.out.println("Invalid Input.");
+            return;
+        }
+
         Cell cell = board.getBoard()[row][column];
         cell.setFlagged(!cell.isFlagged());
 
     }
 
+    boolean checkWinConditions() {
+
+        boolean won = true;
+        Cell[][] board2 = board.getBoard();
+
+        for (int i = 0; i < board.getLength(); i++) {
+            for (int j = 0; j < board.getWidth(); j++) {
+                if (board2[i][j].isMine()) {
+                    continue;
+                } else if (board2[i][j].isShown()) {
+                    continue;
+                } else if (!board2[i][j].isShown()) {
+                    won = false;
+                    break;
+                }
+            }
+        }
+        return won;
+    }
 
     // creates a new board
 
     void restart(int length, int width, int numOfMines) {
-        System.out.println("Generating new Board");
+
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+
         board = new Board(length, width, numOfMines);
     }
 }
