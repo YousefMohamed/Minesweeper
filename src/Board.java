@@ -3,25 +3,31 @@ import java.util.Arrays;
 
 public class Board {
 
-    private final int numOfMines;
-
+    private int numOfMines = 10;
     private Cell[][] board;
 
-
     public Board(int length, int width, int numOfMines) {
-        this.numOfMines = numOfMines;
 
-        board = new Cell[length][width];
-        generate();
+
+        if (length > 0 && width > 0 && numOfMines > 0) {
+            this.numOfMines = numOfMines;
+            board = new Cell[length][width];
+        } else {
+            System.out.println("Invalid Input, using default settings.");
+            board = new Cell[9][9];
+        }
+
+        System.out.println("Creating Board.");
+        createBoard();
     }
 
-    private void generate() {
-        generateMines();
-        generateNumbers();
-        printSolvedBoard();
+    private void createBoard() {
+        setMines();
+        setCellsValues();
+        printBoard();
     }
 
-    private void generateMines() {
+    private void setMines() {
 
         int currentNumOfMines = 0;
         Random random = new Random();
@@ -48,7 +54,7 @@ public class Board {
 
     // Calls Cell.setValue() method on every Cell in the board
 
-    private void generateNumbers() {
+    private void setCellsValues() {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[0].length; j++) {
                 if (board[i][j].isMine()) {
@@ -59,13 +65,11 @@ public class Board {
             }
         }
     }
+
     public void printBoard() {
 
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[0].length; j++) {
-                if (board[i][j].isMine()) {
-
-                }
                 System.out.print(" " + board[i][j].getSymbol());
             }
             System.out.println();
@@ -73,12 +77,8 @@ public class Board {
     }
 
     public void printSolvedBoard() {
-
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[0].length; j++) {
-                if (board[i][j].isMine()) {
-
-                }
                 System.out.print(" " + board[i][j].getValue());
             }
             System.out.println();
