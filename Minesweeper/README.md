@@ -1,12 +1,16 @@
 # Minesweeper
-Minesweeper made in java
+
+Minesweeper in Java.
 
 ## Compile
 
-- Must have jdk installed & [PATH Environment variable configured](https://docs.oracle.com/javase/tutorial/essential/environment/paths.html) 
+- Requirements:
+    1. You must have Java Development Kit (JDK) Installed.
+    2. [You must have PATH environment variable configured](https://docs.oracle.com/javase/tutorial/essential/environment/paths.html).
 
-Open the command line in src directory
+- Steps:
+    1. Open the cmd/bash in the src directory.
+    2. Run ``javac Game.java``
+    3. Run  ``java Game``
 
-Run ``` javac Game.java ``` then run  ``` java Game ```
-
-Or you can just import it into Intellij/Eclipse/Your favourite IDE and build from there .
+Or you can just import it into Intellij/Eclipse/Your favourite IDE and build from there.
