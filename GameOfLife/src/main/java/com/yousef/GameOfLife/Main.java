@@ -17,13 +17,12 @@ public class Main {
             System.out.println("File Not Found!");
             cell = new Cell[10][10];
         }
-
         Board board = new Board(cell);
 
         while (true) {
             board.update();
             try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

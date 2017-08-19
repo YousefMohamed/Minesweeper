@@ -5,6 +5,8 @@
 /GameOfLife/.settings/
 /GameOfLife/.vscode/
 /GameOfLife/target/
+/GameOfLife/.classpath
+/GameOfLife/.project
 
 /SortingAlgorithms/
 /SortingAlgorithms/.idea/

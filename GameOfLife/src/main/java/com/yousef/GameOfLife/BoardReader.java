@@ -15,34 +15,51 @@ public class BoardReader {
 	}
 
 	public Cell[][] createArray() throws IOException {
+
 		ArrayList<ArrayList<Cell>> cells = new ArrayList<>();
-		char currentChar = (char) reader.read();
+		char currentChar;
 
 		int f = 0;
 		int g = 0;
-		while (currentChar != 65535) {
+		while (reader.ready()) {
 
-			System.out.println("Reading: " + currentChar + (int) currentChar);
+			currentChar = (char) reader.read();
+			System.out.println("Reading: " + currentChar);
 
 			if (cells.isEmpty()) {
 				cells.add(new ArrayList<Cell>());
 			}
-			if (currentChar == '\n' || currentChar == '\r') {
+			if (currentChar == '\n') {
 				cells.add(new ArrayList<Cell>());
 				f++;
 				g = 0;
 				System.out.println("New Line Found!");
+			} else if(currentChar == '\r'){
+				reader.mark(1);
+				if(reader.read() == '\n'){
+					cells.add(new ArrayList<Cell>());
+					f++;
+					g = 0;
+					System.out.println("New Line Found!");
+					reader.reset();
+					reader.read();						
+				}else{
+					reader.reset();
+					reader.read();
+				}
 			} else if (currentChar == '1') {
-				cells.get(f).add(new Cell(true, f, g));
+				cells.get(cells.size() - 1).add(new Cell(true, f, g));
 				g++;
 			} else if (currentChar == '0') {
-				cells.get(f).add(new Cell(false, f, g));
+				cells.get(cells.size() - 1).add(new Cell(false, f, g));
 				g++;
 			} else {
-
+				continue;
 			}
-			currentChar = (char) reader.read();
 		}
+
+		reader.close();
+
 		Cell[][] cellsArray = new Cell[cells.size()][cells.get(0).size()];
 		for (int i = 0; i < cells.size(); i++) {
 			cellsArray[i] = cells.get(i).toArray(new Cell[cells.get(i).size()]);
