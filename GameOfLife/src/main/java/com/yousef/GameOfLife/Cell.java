@@ -3,22 +3,27 @@ package com.yousef.GameOfLife;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class Cell implements Cloneable {
-	private boolean isAlive;
+public class Cell {
+	private boolean currentState;
+
+	private boolean previousState;
 	private char symbol;
+
+	private boolean hasChanged;
+
 	private int xCor;
 	private int yCor;
 
-	public Cell(boolean isAlive, int xCor, int yCor) {
-		this.isAlive = isAlive;
+	public Cell(boolean currentState, int xCor, int yCor) {
+		this.currentState = currentState;
 		this.xCor = xCor;
 		this.yCor = yCor;
 
 		setSymbol();
 	}
 
-	public boolean isAlive() {
-		return isAlive;
+	public boolean currentState() {
+		return currentState;
 	}
 
 	public int getxCor() {
@@ -36,30 +41,54 @@ public class Cell implements Cloneable {
 	public void setAlive(ArrayList<Cell> surroundingCells) {
 
 		int aliveCells = 0;
+
 		for (Cell cell : surroundingCells) {
-			if (cell.isAlive()) {
-				aliveCells++;
+			if (cell.hasChanged()) {
+				if (cell.previousState()) {
+					aliveCells++;
+				}
+			} else if (!cell.hasChanged()) {
+				if (cell.currentState()) {
+					aliveCells++;
+				}
 			}
 		}
-		if (isAlive) {
+
+		previousState = currentState;
+
+		if (currentState) {
 			if (aliveCells == 3 || aliveCells == 2) {
+				hasChanged = false;
 			} else if (aliveCells > 3) {
-				isAlive = false;
+				currentState = false;
+				hasChanged = true;
 			} else if (aliveCells < 2) {
-				isAlive = false;
+				currentState = false;
+				hasChanged = true;
+			} else {
+				hasChanged = false;
 			}
-		} else if (!isAlive) {
+		} else if (!currentState) {
 			if (aliveCells == 3) {
-				isAlive = true;
+				currentState = true;
+				hasChanged = true;
+			} else {
+				hasChanged = false;
 			}
 		}
+
 		setSymbol();
 	}
 
+	public void reset() {
+		previousState = false;
+		hasChanged = false;
+	}
+
 	private void setSymbol() {
-		if (isAlive) {
+		if (currentState) {
 			symbol = '1';
-		} else if (!isAlive) {
+		} else if (!currentState) {
 			symbol = ' ';
 		}
 	}
@@ -67,6 +96,14 @@ public class Cell implements Cloneable {
 	@Override
 	public String toString() {
 		return Character.toString(symbol);
+	}
+
+	public boolean previousState() {
+		return previousState;
+	}
+
+	public boolean hasChanged() {
+		return hasChanged;
 	}
 
 	@Override
@@ -84,15 +121,11 @@ public class Cell implements Cloneable {
 		}
 		Cell cell = (Cell) obj;
 
-		return isAlive == cell.isAlive() && xCor == cell.xCor && yCor == cell.yCor;
+		return currentState == cell.currentState() && xCor == cell.xCor && yCor == cell.yCor;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(symbol, isAlive, xCor, yCor);
-	}
-
-	public Cell clone() {
-		return new Cell(isAlive, xCor, yCor);
+		return Objects.hash(symbol, currentState, xCor, yCor);
 	}
 }

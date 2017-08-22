@@ -3,49 +3,37 @@ package com.yousef.GameOfLife;
 import java.util.Random;
 import java.util.ArrayList;
 
-public class Board {
+public class Board implements Runnable {
 
 	Cell[][] board;
-	Cell[][] swapBoard;
-
-	public Board() {
-		board = randomBoard();
-	}
 
 	public Board(Cell[][] board) {
 		this.board = board;
 	}
 
-	private Cell[][] cloneBoard(Cell[][] originalBoard) {
-
-		Cell[][] clonedBoard = new Cell[originalBoard.length][originalBoard[0].length];
-
-		for (int i = 0; i < originalBoard.length; i++) {
-			for (int j = 0; j < originalBoard[0].length; j++) {
-				clonedBoard[i][j] = originalBoard[i][j].clone();
-			}
-		}
-		return clonedBoard;
+	public Board() {
+		board = randomBoard();
 	}
 
 	public Cell[][] randomBoard() {
-		Cell[][] randomBoard = new Cell[20][20];
-		int limit = 300;
+		Cell[][] randomBoard = new Cell[60][60];
+
 		int numOfAlives = 0;
 		Random random = new Random();
-		while (numOfAlives < limit) {
+
+		while (numOfAlives < 2000) {
 			for (int i = 0; i < randomBoard.length; i++) {
 				for (int j = 0; j < randomBoard[0].length; j++) {
 					if (randomBoard[i][j] == null) {
-						if (random.nextDouble() > 0.999 && numOfAlives < limit) {
+						if (random.nextDouble() > 0.999 && numOfAlives < 3000) {
 							randomBoard[i][j] = new Cell(true, i, j);
 							numOfAlives++;
 						} else {
 							randomBoard[i][j] = new Cell(false, i, j);
 						}
-					} else if (randomBoard[i][j].isAlive()) {
+					} else if (randomBoard[i][j].currentState()) {
 					} else {
-						if (random.nextDouble() > 0.9 && numOfAlives < limit) {
+						if (random.nextDouble() > 0.999 && numOfAlives < 3000) {
 							randomBoard[i][j] = new Cell(true, i, j);
 							numOfAlives++;
 						} else {
@@ -56,7 +44,6 @@ public class Board {
 			}
 		}
 		return randomBoard;
-
 	}
 
 	public void update() {
@@ -65,20 +52,30 @@ public class Board {
 		System.out.flush();
 
 		updateArrays();
-
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < board.length; i++) {
 			for (int j = 0; j < board[0].length; j++) {
-				System.out.print(" " + board[i][j].getSymbol());
+				sb.append(" " + board[i][j].getSymbol());
+				board[i][j].reset();
 			}
-			System.out.println();
+			sb.append("\n");
+		}
+
+		System.out.print(sb.toString());
+		cleanup();
+	}
+
+	public void cleanup() {
+		for (int i = 0; i < board.length; i++) {
+			for (int j = 0; j < board[0].length; j++) {
+				board[i][j].reset();
+			}
 		}
 	}
 
 	private void updateArrays() {
-		swapBoard = cloneBoard(board);
-
-		for (int i = 0; i < swapBoard.length; i++) {
-			for (int j = 0; j < swapBoard[0].length; j++) {
+		for (int i = 0; i < board.length; i++) {
+			for (int j = 0; j < board[0].length; j++) {
 				board[i][j].setAlive(getSurroundingCells(board[i][j]));
 			}
 		}
@@ -93,12 +90,16 @@ public class Board {
 					continue;
 				}
 				try {
-					surroundingCells.add(swapBoard[i][j]);
+					surroundingCells.add(board[i][j]);
 				} catch (IndexOutOfBoundsException e) {
 
 				}
 			}
 		}
 		return surroundingCells;
+	}
+
+	public void run() {
+		update();
 	}
 }
