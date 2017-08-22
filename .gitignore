@@ -1,6 +1,9 @@
-/Minesweeper/.idea/
-/Minesweeper/out/
-/Minesweeper/*.iml
+/Minesweeper/.settings/
+/Minesweeper/.vscode/
+/Minesweeper/target/
+/Minesweeper/src/test/
+/Minesweeper/.classpath
+/Minesweeper/.project
 
 /GameOfLife/.settings/
 /GameOfLife/.vscode/
