@@ -51,7 +51,7 @@ public class Board {
                             board[i][j] = new Cell(i, j, true, this);
                             currentNumOfMines++;
                         } else {
-                            board[i][j] = new Cell(i, j, false, this);                            
+                            board[i][j] = new Cell(i, j, false, this);
                         }
                     } else if (board[i][j].isMine()) {
 
@@ -79,16 +79,26 @@ public class Board {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[0].length; j++) {
                 if (hasWon || hasLost) {
-                    System.out.print(" " + board[i][j].getValue());
-                } else {
+                } 
+                
+                System.out.print(" " + board[i][j].getValue());
+                /*else {
                     System.out.print(" " + board[i][j].getSymbol());
-                }
+                }*/
+            }
+            System.out.println();
+        }
+        System.out.println();
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                
+                    System.out.print(" " + board[i][j].getSymbol());
             }
             System.out.println();
         }
     }
 
-    private void reveal(Cell originalCell, Queue<Cell> queue, ArrayList<Cell> processed) {
+    private void show(Cell originalCell, Queue<Cell> queue, ArrayList<Cell> processed) {
 
         originalCell.show();
         queue.add(originalCell);
@@ -118,52 +128,6 @@ public class Board {
             }
 
         }
-        /*
-        if (queue.isEmpty()) {
-            for (Cell cell2 : surroundingCells) {
-                if (processed.contains(cell2)) {
-        
-                } else if (!cell2.hasValue() && !cell.isMine()) {
-                    queue.add(cell2);
-                } else if (cell2.hasValue()) {
-                    cell2.show();
-                }
-            }
-        
-            if (queue.isEmpty()) {
-                return;
-            } else {
-                reveal(queue.get(0), queue, processed);
-                return;
-            }
-        
-        } else {
-            for (Cell cell2 : cell.getSurroundingCells()) {
-                if (queue.contains(cell2)) {
-        
-                } else if (processed.contains(cell2)) {
-        
-                } else if (!cell2.hasValue() && !cell2.isMine()) {
-                    queue.add(cell2);
-                } else if (cell2.hasValue()) {
-                    cell2.show();
-                } else if (cell2.isShown()) {
-        
-                } else if (cell2.isMine()) {
-        
-                }
-            }
-        
-            processed.add(cell);
-            queue.remove(cell);
-        
-            if (queue.isEmpty()) {
-                return;
-            } else {
-                reveal(queue.get(0), queue, processed);
-                return;
-            }
-        }*/
     }
 
     public void check(int row, int column) {
@@ -188,7 +152,7 @@ public class Board {
 
         } else if (cell.isShown()) {
 
-            System.out.println("Already revealed.");
+            System.out.println("Already Shown.");
 
         } else if (Integer.parseInt(cell.getValue()) > 0) {
             cell.show();
@@ -201,7 +165,7 @@ public class Board {
 
         } else if (Integer.parseInt(cell.getValue()) == 0) {
 
-            reveal(cell, new ArrayDeque<Cell>(), new ArrayList<>());
+            show(cell, new ArrayDeque<Cell>(), new ArrayList<>());
 
             checkWinConditions();
             if (hasWon) {
