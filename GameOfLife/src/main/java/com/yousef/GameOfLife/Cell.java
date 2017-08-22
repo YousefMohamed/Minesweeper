@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class Cell {
-	private boolean currentState;
 
+	private boolean currentState;
 	private boolean previousState;
+	
 	private char symbol;
 
 	private boolean hasChanged;
@@ -20,22 +21,6 @@ public class Cell {
 		this.yCor = yCor;
 
 		setSymbol();
-	}
-
-	public boolean currentState() {
-		return currentState;
-	}
-
-	public int getxCor() {
-		return xCor;
-	}
-
-	public int getyCor() {
-		return yCor;
-	}
-
-	public char getSymbol() {
-		return symbol;
 	}
 
 	public void setAlive(ArrayList<Cell> surroundingCells) {
@@ -77,7 +62,9 @@ public class Cell {
 			}
 		}
 
-		setSymbol();
+		if (hasChanged) {
+			setSymbol();
+		}
 	}
 
 	public void reset() {
@@ -93,11 +80,6 @@ public class Cell {
 		}
 	}
 
-	@Override
-	public String toString() {
-		return Character.toString(symbol);
-	}
-
 	public boolean previousState() {
 		return previousState;
 	}
@@ -105,6 +87,29 @@ public class Cell {
 	public boolean hasChanged() {
 		return hasChanged;
 	}
+
+	
+	public boolean currentState() {
+		return currentState;
+	}
+
+	public int getxCor() {
+		return xCor;
+	}
+
+	public int getyCor() {
+		return yCor;
+	}
+
+	public char getSymbol() {
+		return symbol;
+	}
+
+	@Override
+	public String toString() {
+		return Character.toString(symbol);
+	}
+
 
 	@Override
 	public boolean equals(Object obj) {
