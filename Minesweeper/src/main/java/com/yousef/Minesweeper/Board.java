@@ -15,14 +15,17 @@ public class Board {
 
     private Board(int length, int width, int numOfMines) {
 
+        hasWon = false;
+        hasLost = false;
         this.numOfMines = numOfMines;
+
         board = new Cell[length][width];
 
         System.out.println("Creating Board.");
 
         setMines();
         setCellsValues();
-        printBoard();
+        toString();
     }
 
     public static Board createBoard(int length, int width, int numOfMines) throws IllegalArgumentException {
@@ -74,28 +77,28 @@ public class Board {
         }
     }
 
-    public void printBoard() {
+    public String toString() {
 
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[0].length; j++) {
-                if (hasWon || hasLost) {
-                } 
-                
-                System.out.print(" " + board[i][j].getValue());
-                /*else {
-                    System.out.print(" " + board[i][j].getSymbol());
-                }*/
+        StringBuilder currentBoardRepresentation = new StringBuilder();
+
+        if (hasWon || hasLost) {
+            for (int i = 0; i < board.length; i++) {
+                for (int j = 0; j < board[0].length; j++) {
+                    currentBoardRepresentation.append(board[i][j].getValue() + " ");
+                }
+                currentBoardRepresentation.append("\n"+" ");
             }
-            System.out.println();
-        }
-        System.out.println();
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[0].length; j++) {
-                
-                    System.out.print(" " + board[i][j].getSymbol());
+        } else {
+
+            for (int i = 0; i < board.length; i++) {
+                for (int j = 0; j < board[0].length; j++) {
+                    currentBoardRepresentation.append(board[i][j].getSymbol()+" ");
+                }
+                currentBoardRepresentation.append("\n");
             }
-            System.out.println();
         }
+
+        return currentBoardRepresentation.toString();
     }
 
     private void show(Cell originalCell, Queue<Cell> queue, ArrayList<Cell> processed) {
@@ -110,16 +113,8 @@ public class Board {
             currentCell.show();
 
             for (Cell cell : currentCell.getSurroundingCells()) {
-
-                if (cell.isMine()) {
-
-                } else if (cell.isShown()) {
-
-                } else if (cell.isFlagged()) {
-
-                } else if (processed.contains(cell)) {
-
-                } else if (Integer.parseInt(cell.getValue()) == 0) {
+                if (Integer.parseInt(cell.getValue()) == 0 && !cell.isMine() && !cell.isShown() && !cell.isFlagged()
+                        && !processed.contains(cell)) {
                     queue.add(cell);
                     processed.add(cell);
                 } else if (Integer.parseInt(cell.getValue()) > 0) {
@@ -136,7 +131,7 @@ public class Board {
             return;
         }
 
-        if (row > board.length || column > board[0].length) {
+        if (row >= board.length || column >= board[0].length || row < 0 || column < 0) {
             System.out.println("Invalid Input.");
             return;
         }
@@ -151,38 +146,29 @@ public class Board {
             System.out.println("You Lose.");
 
         } else if (cell.isShown()) {
-
             System.out.println("Already Shown.");
-
         } else if (Integer.parseInt(cell.getValue()) > 0) {
             cell.show();
-
-            checkWinConditions();
-            if (hasWon) {
-
-                System.out.println("You Win!");
-            }
-
         } else if (Integer.parseInt(cell.getValue()) == 0) {
-
             show(cell, new ArrayDeque<Cell>(), new ArrayList<>());
-
-            checkWinConditions();
-            if (hasWon) {
-                System.out.println("You Win!");
-            }
         }
+
+        checkWinConditions();
+        if (hasWon) {
+            System.out.println("You Win!");
+        }
+
     }
 
     // sets isFlagged to true/false depending on its state
 
-    void flag(int row, int column) {
+    public void flag(int row, int column) {
 
         if (hasLost || hasWon) {
             return;
         }
 
-        if (row > board.length || column > board[0].length) {
+        if (row >= board.length || column >= board[0].length || row < 0 || column < 0) {
             System.out.println("Invalid Input.");
             return;
         }
@@ -244,7 +230,7 @@ public class Board {
         return numOfMines;
     }
 
-    public Cell getCellAt(int row, int column) {
+    public Cell getCellAt(int row, int column) throws IndexOutOfBoundsException {
         return board[row][column];
     }
 
@@ -266,6 +252,13 @@ public class Board {
                 }
             }
         }
+    }
 
+    public boolean hasWon() {
+        return hasWon;
+    }
+
+    public boolean hasLost() {
+        return hasLost;
     }
 }

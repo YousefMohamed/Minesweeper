@@ -1,7 +1,6 @@
 package com.yousef.Minesweeper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 
 public class Cell {
@@ -68,7 +67,7 @@ public class Cell {
 
     public ArrayList<Cell> getSurroundingCells() {
 
-        if (surroundingCells.isEmpty()) {
+        if (surroundingCells.isEmpty() || surroundingCells.contains(null)) {
             setSurroundingCells();
         }
 
@@ -82,10 +81,10 @@ public class Cell {
                 if (i == xCor && j == yCor) {
 
                 } else {
-                    try {
+                    if (i >= myBoard.getLength() || j >= myBoard.getWidth() || i < 0 || j < 0) {
+                        continue;
+                    } else {
                         surroundingCells.add(myBoard.getCellAt(i, j));
-                    } catch (ArrayIndexOutOfBoundsException e) {
-
                     }
                 }
             }
@@ -126,7 +125,7 @@ public class Cell {
         if (isShown) {
             return;
         }
-        
+
         isFlagged = flagged;
 
         if (isFlagged) {

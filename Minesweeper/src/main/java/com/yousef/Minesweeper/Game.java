@@ -7,16 +7,31 @@ public class Game {
 
     Board board;
     boolean playing;
+    Scanner scan;
+    String help = "Commands:\n" 
+                + "          Help: Opens the help menu.\n"
+                + "          Check: Reveals the cell you specify.\n"
+                + "          Flag: Flags the cell you specify.\n"
+                + "          Restart: Starts a new Game.\n"
+                + "          Quit/Exit: Exits the Game.\n"
+                + "CommandFormat(s):\n"
+                + "                 <Command> <Row> <Column>\n"
+                + "                 <Command>\n"
+                + "Examples:\n"
+                + "          Check 10 10\n"
+                + "          Restart\n";
 
-    public Game(int length, int width, int numOfMines) throws IllegalArgumentException {
+    public Game() throws IllegalArgumentException {
 
-        help();
-        playing = true;
+        scan = new Scanner(System.in);
+        int[] parameters = init();
+
+        System.out.print(help);
 
         // First click isn't guaranteed to bo safe
         // TODO: create the board when the user makes his first choice.
-        board = Board.createBoard(length, width, numOfMines);
-
+        board = Board.createBoard(parameters[0], parameters[1], parameters[2]);
+        System.out.println(board);
         start();
     }
 
@@ -26,89 +41,105 @@ public class Game {
             userInput();
         }
 
+        scan.close();
         System.exit(0);
     }
 
-    public void help() {
-        System.out.println();
-        System.out.println("Command Format(s):  ");
-        System.out.println("                  <Command>, <Row>, <Column>");
-        System.out.println("Example:          Check, 10, 10");
-        System.out.println("Commands:");
-        System.out.println("           Help: Opens the help menu.");
-        System.out.println("           Check: Specify the Cell you want to check.");
-        System.out.println("           Flag: Specify the Cell you want to flag.");
-        System.out.println("           Restart: Start a new Game.");
-        System.out.println("           Quit/Exist: Quits the current Game.");
-        System.out.println();
+    private int[] init() {
+
+        int length = 0;
+        int width = 0;
+        int numOfMines = 0;
+
+        while (!playing) {
+
+            try {
+                System.out.print("Length: ");
+                length = scan.nextInt();
+
+                System.out.print("Width: ");
+                width = scan.nextInt();
+
+                System.out.print("Number Of Mines: ");
+                numOfMines = scan.nextInt();
+                playing = true;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input, Please enter a number.");
+            }
+        }
+
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+
+        return new int[] { length, width, numOfMines };
     }
 
     void userInput() {
 
+        scan = new Scanner(System.in);
+
+        if (board.hasLost() || board.hasWon()) {
+            System.out.print("New Game? Yes|Quit");
+
+            String input = scan.nextLine().trim().toLowerCase();
+
+            if (input.equals("yes") || input.equals("new game")) {
+                restart();
+            } else if (input.equals("quit") || input.equals("exit")) {
+                playing = false;
+                return;
+            } else {
+                return;
+            }
+        }
+
         System.out.print("$ ");
-        Scanner scan = new Scanner(System.in);
-        String userInput = scan.nextLine().trim().toLowerCase();
+        String[] userInput = scan.nextLine().trim().toLowerCase().split(" ");
 
-        int row;
-        int column;
+        if (userInput.length != 3) {
+            if (userInput.length != 1) {
+                return;
+            }
+        }
 
-        switch (userInput) {
+        String command = "Invalid Input!";
+        int row = 0;
+        int column = 0;
+
+        if (userInput.length == 1) {
+            command = userInput[0];
+        } else if (userInput.length == 3) {
+            command = userInput[0];
+            try {
+                row = Integer.parseInt(userInput[1].trim()) - 1;
+                column = Integer.parseInt(userInput[2].trim()) - 1;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid Input!");
+                return;
+            }
+        }
+
+        switch (command) {
         case "help":
 
-            help();
+            System.out.print(help);
             break;
 
         case "check":
-            try {
-                System.out.print("Row: ");
-                row = scan.nextInt() - 1;
-
-                System.out.print("Column: ");
-                column = scan.nextInt() - 1;
-
-                board.check(row, column);
-                board.printBoard();
-
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input, Please enter a number.");
-            }
-            break;
-
-        case "restart":
-
-            try {
-                System.out.print("Length: ");
-                row = scan.nextInt() - 1;
-
-                System.out.print("Width: ");
-                column = scan.nextInt() - 1;
-
-                System.out.print("Number Of Mines: ");
-
-                int numOfMines = scan.nextInt();
-
-                restart(row, column, numOfMines);
-
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input, Please enter a number.");
-            }
+            board.check(row, column);
+            System.out.println(board.toString());
 
             break;
 
         case "flag":
 
-            try {
-                System.out.print("Row: ");
-                row = scan.nextInt() - 1;
+            board.flag(row, column);
+            System.out.println(board.toString());
+            break;
 
-                System.out.print("Column: ");
-                column = scan.nextInt() - 1;
+        case "restart":
 
-                board.flag(row, column);
-                board.printBoard();
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input, Please enter a number.");
-            }
+            restart();
             break;
 
         case "quit":
@@ -129,56 +160,25 @@ public class Game {
         }
     }
 
-    // creates a new board
-
-    void restart(int length, int width, int numOfMines) {
+    void restart() {
 
         System.out.print("\033[H\033[2J");
         System.out.flush();
 
         try {
-            new Game(length, width, numOfMines);
+            new Game();
         } catch (IllegalArgumentException c) {
             System.out.println("Invaild Input!");
         }
     }
 
     public static void main(String[] args) {
+
         try {
             new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-        } catch (IOException e) {
-        } catch (InterruptedException exception) {
+        } catch (IOException | InterruptedException exception) {
         }
 
-        Scanner scan = new Scanner(System.in);
-
-        int length = 0;
-        int width = 0;
-        int numOfMines = 0;
-
-        try {
-            System.out.print("Length: ");
-            length = scan.nextInt();
-
-            System.out.print("Width: ");
-            width = scan.nextInt();
-
-            System.out.print("Number Of Mines: ");
-            numOfMines = scan.nextInt();
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input, Please enter a number.");
-            main(new String[0]);
-        }
-
-        try {
-            System.out.print("\033[H\033[2J");
-            System.out.flush();
-
-            new Game(length, width, numOfMines);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Invalid Input!");
-            main(new String[0]);
-        }
-
+        new Game();
     }
 }

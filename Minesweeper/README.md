@@ -20,10 +20,10 @@ Minesweeper, in Java.
 - Requirements:
     1. You must have Java Development Kit (JDK) Installed.
     2. [You must have PATH environment variable configured](https://docs.oracle.com/javase/tutorial/essential/environment/paths.html).
-    3. You must Have Maven installed and Configured.
+    3. You must have [Apache Maven](https://maven.apache.org/) installed and Configured.
 
 - Instructions:
-    1. Open cmd/bash in the projects directory
+    1. Open cmd/bash in the project's directory
     2. Run ``mvn compile``
     3. Run  ``mvn exec:java``
 
