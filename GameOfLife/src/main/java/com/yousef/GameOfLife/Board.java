@@ -15,7 +15,7 @@ public class Board implements Runnable {
 		board = randomBoard();
 	}
 
-	public Cell[][] randomBoard() {
+	private Cell[][] randomBoard() {
 		Cell[][] randomBoard = new Cell[60][60];
 
 		int numOfAlives = 0;
@@ -52,26 +52,7 @@ public class Board implements Runnable {
 		return randomBoard;
 	}
 
-	public void update() {
-
-		System.out.print("\033[H\033[2J");
-		System.out.flush();
-
-		updateArrays();
-		
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < board.length; i++) {
-			for (int j = 0; j < board[0].length; j++) {
-				sb.append(" " + board[i][j].getSymbol());
-			}
-			sb.append("\n");
-		}
-		System.out.print(sb.toString());
-
-		cleanup();
-	}
-
-	public void cleanup() {
+	private void cleanup() {
 		for (int i = 0; i < board.length; i++) {
 			for (int j = 0; j < board[0].length; j++) {
 				board[i][j].reset();
@@ -106,6 +87,21 @@ public class Board implements Runnable {
 	}
 
 	public void run() {
-		update();
+		
+		System.out.print("\033[H\033[2J");
+		System.out.flush();
+
+		updateArrays();
+		
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < board.length; i++) {
+			for (int j = 0; j < board[0].length; j++) {
+				sb.append(" " + board[i][j].getSymbol());
+			}
+			sb.append("\n");
+		}
+		System.out.print(sb.toString());
+
+		cleanup();	
 	}
 }
