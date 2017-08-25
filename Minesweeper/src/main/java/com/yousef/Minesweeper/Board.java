@@ -76,7 +76,7 @@ public class Board {
 
     public String toString() {
 
-        StringBuilder currentBoardRepresentation = new StringBuilder();
+        StringBuilder currentBoardRepresentation = new StringBuilder().append("\n");
 
         if (gameEnded) {
             for (int i = 0; i < board.length; i++) {

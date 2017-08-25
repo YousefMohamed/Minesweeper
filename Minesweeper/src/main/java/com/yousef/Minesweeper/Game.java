@@ -1,25 +1,18 @@
 package com.yousef.Minesweeper;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.InputMismatchException;
+import java.util.Scanner;
 
 public class Game {
 
     Board board;
     boolean playing;
-    String help = 
-            "Commands:\n"
-            + "          Help: Opens the help menu.\n"
-            + "          Check: Reveals the cell you specify.\n"
-            + "          Flag: Flags the cell you specify.\n"
-            + "          Restart: Starts a new Game.\n"
-            + "          Quit/Exit: Exits the Game.\n\n"
-            + "Command Format(s):\n"
-            + "                 <Command> <Row> <Column>\n"
-            + "                 <Command>\n\n"
-            + "Examples:\n"
-            + "          Check 10 10\n"
-            + "          Restart\n\n";
+    String help = "Commands:\n" + "          Help: Opens the help menu.\n"
+            + "          Check: Reveals the cell you specify.\n" + "          Flag: Flags the cell you specify.\n"
+            + "          Restart: Starts a new Game.\n" + "          Quit/Exit: Exits the Game.\n\n"
+            + "Command Format(s):\n" + "                 <Command> <Row> <Column>\n" + "                 <Command>\n\n"
+            + "Examples:\n" + "          Check 10 10\n" + "          Restart\n\n";
 
     public Game() throws IllegalArgumentException {
         int[] parameters = init();
@@ -79,10 +72,10 @@ public class Game {
 
         while (playing) {
 
-            System.out.print("$ ");
-
             if (board.gameEnded()) {
                 System.out.println("New Game? Yes|Quit");
+
+                System.out.print("$ ");
 
                 String userInput = scan.nextLine().trim().toLowerCase();
 
@@ -93,89 +86,93 @@ public class Game {
                     continue;
                 } else {
                 }
-            }
+            } else {
 
-            String[] userInput = scan.nextLine().trim().toLowerCase().split("\\s+");
+                System.out.print("$ ");
 
-            int row = 0;
-            int column = 0;
-            String command = "Invalid input";
+                String[] userInput = scan.nextLine().trim().toLowerCase().split("\\s+");
 
-            if (userInput.length == 1) {
-                command = userInput[0];
-                switch (command) {
+                int row = 0;
+                int column = 0;
+                String command = "Invalid input";
 
-                case "help":
+                if (userInput.length == 1) {
+                    command = userInput[0];
+                    switch (command) {
 
-                    System.out.print(help);
-                    break;
+                    case "help":
 
-                case "restart":
+                        System.out.print(help);
+                        break;
 
-                    restart();
-                    break;
+                    case "restart":
 
-                case "quit":
+                        restart();
+                        break;
 
-                    playing = false;
-                    break;
+                    case "quit":
 
-                case "exit":
+                        playing = false;
+                        break;
 
-                    playing = false;
-                    break;
+                    case "exit":
 
-                case "":
-                    break;
-                default:
+                        playing = false;
+                        break;
+
+                    case "":
+                        break;
+                    default:
+                        System.out.println("Invalid Input!");
+                        break;
+                    }
+                } else if (userInput.length == 3) {
+
+                    command = userInput[0];
+
+                    try {
+                        row = Integer.parseInt(userInput[1].trim()) - 1;
+                        column = Integer.parseInt(userInput[2].trim()) - 1;
+                    } catch (NumberFormatException e) {
+                        System.out.println("Please enter a number.");
+                        continue;
+                    }
+
+                    switch (command) {
+
+                    case "check":
+
+                        if (row >= board.getLength() || column >= board.getWidth() || row < 0 || column < 0) {
+                            System.out.println(
+                                    "Error: Specified row/column is bigger than the length/width of the board.");
+                            break;
+                        }
+
+                        board.check(row, column);
+                        System.out.println(board.toString());
+                        break;
+
+                    case "flag":
+
+                        if (row >= board.getLength() || column >= board.getWidth() || row < 0 || column < 0) {
+                            System.out.println(
+                                    "Error: Specified row/column is bigger than the length/width of the board.");
+                            break;
+                        }
+
+                        board.flag(row, column);
+                        System.out.println(board.toString());
+                        break;
+                    default:
+                        System.out.println("Invalid Input!");
+                        break;
+                    }
+
+                } else {
                     System.out.println("Invalid Input!");
-                    break;
-                }
-            } else if (userInput.length == 3) {
-
-                command = userInput[0];
-
-                try {
-                    row = Integer.parseInt(userInput[1].trim()) - 1;
-                    column = Integer.parseInt(userInput[2].trim()) - 1;
-                } catch (NumberFormatException e) {
-                    System.out.println("Please enter a number.");
                     continue;
                 }
-
-                switch (command) {
-
-                case "check":
-
-                    if (row >= board.getLength() || column >= board.getWidth() || row < 0 || column < 0) {
-                        System.out.println("Error: Specified row/column is bigger than the length/width of the board.");
-                        break;
-                    }
-
-                    board.check(row, column);
-                    System.out.println(board.toString());
-                    break;
-
-                case "flag":
-
-                    if (row >= board.getLength() || column >= board.getWidth() || row < 0 || column < 0) {
-                        System.out.println("Error: Specified row/column is bigger than the length/width of the board.");
-                        break;
-                    }
-
-                    board.flag(row, column);
-                    System.out.println(board.toString());
-                    break;
-                default:
-                    System.out.println("Invalid Input!");
-                    break;
-                }
-
-            } else {
-                System.out.println("Invalid Input!");
-                continue;
             }
-
         }
 
         scan.close();
