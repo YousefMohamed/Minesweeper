@@ -10,13 +10,11 @@ public class Board {
 
     private final int numOfMines;
     private final Cell[][] board;
-    private boolean hasWon;
-    private boolean hasLost;
+    private boolean gameEnded;
 
     private Board(int length, int width, int numOfMines) {
 
-        hasWon = false;
-        hasLost = false;
+        gameEnded = false;
         this.numOfMines = numOfMines;
 
         board = new Cell[length][width];
@@ -25,13 +23,12 @@ public class Board {
 
         setMines();
         setCellsValues();
-        toString();
     }
 
-    public static Board createBoard(int length, int width, int numOfMines) throws IllegalArgumentException {
+    public static Board createBoard(int length, int width, int numOfMines) {
 
         if (length > 1 && width > 1 && numOfMines >= 0 && numOfMines >= (length * width)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Length * Width <= Number Of Mines");
         }
 
         return new Board(length, width, numOfMines);
@@ -81,18 +78,17 @@ public class Board {
 
         StringBuilder currentBoardRepresentation = new StringBuilder();
 
-        if (hasWon || hasLost) {
+        if (gameEnded) {
             for (int i = 0; i < board.length; i++) {
                 for (int j = 0; j < board[0].length; j++) {
-                    currentBoardRepresentation.append(board[i][j].getValue() + " ");
+                    currentBoardRepresentation.append(" " + board[i][j].getValue());
                 }
-                currentBoardRepresentation.append("\n"+" ");
+                currentBoardRepresentation.append("\n");
             }
         } else {
-
             for (int i = 0; i < board.length; i++) {
                 for (int j = 0; j < board[0].length; j++) {
-                    currentBoardRepresentation.append(board[i][j].getSymbol()+" ");
+                    currentBoardRepresentation.append(" " + board[i][j].getSymbol());
                 }
                 currentBoardRepresentation.append("\n");
             }
@@ -127,13 +123,12 @@ public class Board {
 
     public void check(int row, int column) {
 
-        if (hasWon || hasLost) {
+        if (gameEnded) {
             return;
         }
 
         if (row >= board.length || column >= board[0].length || row < 0 || column < 0) {
-            System.out.println("Invalid Input.");
-            return;
+            throw new IllegalArgumentException("Specified row/column is bigger than the length/width of the board.");
         }
 
         Cell cell = board[row][column];
@@ -142,8 +137,9 @@ public class Board {
 
             cell.show();
 
-            hasLost = true;
+            gameEnded = true;
             System.out.println("You Lose.");
+            return;
 
         } else if (cell.isShown()) {
             System.out.println("Already Shown.");
@@ -154,7 +150,7 @@ public class Board {
         }
 
         checkWinConditions();
-        if (hasWon) {
+        if (gameEnded) {
             System.out.println("You Win!");
         }
 
@@ -164,13 +160,12 @@ public class Board {
 
     public void flag(int row, int column) {
 
-        if (hasLost || hasWon) {
+        if (gameEnded) {
             return;
         }
 
         if (row >= board.length || column >= board[0].length || row < 0 || column < 0) {
-            System.out.println("Invalid Input.");
-            return;
+            throw new IllegalArgumentException("Specified row/column is bigger than the length/width of the board.");
         }
 
         Cell cell = board[row][column];
@@ -236,7 +231,7 @@ public class Board {
 
     private void checkWinConditions() {
 
-        if (hasLost || hasWon) {
+        if (gameEnded) {
             return;
         }
 
@@ -247,18 +242,16 @@ public class Board {
                 } else if (board[i][j].isShown()) {
                     continue;
                 } else if (!board[i][j].isShown()) {
-                    hasWon = false;
-                    break;
+                    gameEnded = false;
+                    return;
                 }
             }
         }
+
+        gameEnded = true;
     }
 
-    public boolean hasWon() {
-        return hasWon;
-    }
-
-    public boolean hasLost() {
-        return hasLost;
+    public boolean gameEnded() {
+        return gameEnded;
     }
 }
