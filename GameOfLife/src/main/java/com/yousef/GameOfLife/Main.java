@@ -13,21 +13,16 @@ public class Main {
         } catch (InterruptedException exception) {
         }
 
-        Cell[][] cell;
-
+        String path = new Main().getClass().getResource(args[0]).getPath();
+        Board board;
         try {
-            cell = new BoardReader("oscillators.txt").createArray();
-        } catch (IOException c) {
-            System.out.println("File Not Found!");
-            cell = new Cell[10][10];
+            board = new Board(path);
+        } catch (IOException e) {
+            board = new Board();
         }
 
-        System.out.println();
-    
-        Board board = new Board(cell);
-        
         final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(board, 100, 200, TimeUnit.MILLISECONDS);
-        
+
     }
 }

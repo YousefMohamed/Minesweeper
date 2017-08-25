@@ -7,7 +7,7 @@ public class Cell {
 
 	private boolean currentState;
 	private boolean previousState;
-	
+
 	private char symbol;
 
 	private boolean hasChanged;
@@ -15,18 +15,26 @@ public class Cell {
 	private int xCor;
 	private int yCor;
 
-	public Cell(boolean currentState, int xCor, int yCor) {
+	final Board myBoard;
+	ArrayList<Cell> surroundingCells;
+
+	public Cell(boolean currentState, int xCor, int yCor, Board board) {
 		this.currentState = currentState;
+
 		this.xCor = xCor;
 		this.yCor = yCor;
+		this.myBoard = board;
+
+		surroundingCells = new ArrayList<>();
 
 		setSymbol();
 	}
 
-	public void setAlive(ArrayList<Cell> surroundingCells) {
+	public void setAlive() {
+
+		setSurroundingCells();
 
 		int aliveCells = 0;
-
 		for (Cell cell : surroundingCells) {
 			if (cell.hasChanged()) {
 				if (cell.previousState()) {
@@ -67,6 +75,27 @@ public class Cell {
 		}
 	}
 
+	private void setSurroundingCells() {
+		if (surroundingCells.isEmpty()) {
+			for (int i = xCor - 1; i <= xCor + 1; i++) {
+				for (int j = yCor - 1; j <= yCor + 1; j++) {
+					if (i >= myBoard.getLength() || j >= myBoard.getWidth() || i < 0 || j < 0) {
+						continue;
+					}
+					if (i == xCor && j == yCor) {
+						continue;
+					} else {
+						try {
+							surroundingCells.add(myBoard.getCellAt(i, j));
+						} catch (IndexOutOfBoundsException c) {
+
+						}
+					}
+				}
+			}
+		}
+	}
+
 	public void reset() {
 		previousState = false;
 		hasChanged = false;
@@ -88,7 +117,6 @@ public class Cell {
 		return hasChanged;
 	}
 
-	
 	public boolean currentState() {
 		return currentState;
 	}
@@ -109,7 +137,6 @@ public class Cell {
 	public String toString() {
 		return Character.toString(symbol);
 	}
-
 
 	@Override
 	public boolean equals(Object obj) {

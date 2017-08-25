@@ -1,7 +1,8 @@
 package com.yousef.GameOfLife;
 
 import java.util.Random;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.net.URL;
 
 public class Board implements Runnable {
 
@@ -15,7 +16,15 @@ public class Board implements Runnable {
 		board = randomBoard();
 	}
 
-	private Cell[][] randomBoard() {
+	public Board(String path) throws IOException {
+		board = BoardReader.createArray(path, this);
+	}
+
+	public Board(URL path) throws IOException {
+		board = BoardReader.createArray(path, this);
+	}
+
+	public Cell[][] randomBoard() {
 		Cell[][] randomBoard = new Cell[60][60];
 
 		int numOfAlives = 0;
@@ -24,26 +33,26 @@ public class Board implements Runnable {
 		while (numOfAlives < 3000) {
 			for (int i = 0; i < randomBoard.length; i++) {
 				for (int j = 0; j < randomBoard[0].length; j++) {
-					
+
 					if (randomBoard[i][j] == null) {
-						
+
 						if (random.nextDouble() > 0.999 && numOfAlives < 3000) {
-							randomBoard[i][j] = new Cell(true, i, j);
+							randomBoard[i][j] = new Cell(true, i, j, this);
 							numOfAlives++;
 						} else {
-							randomBoard[i][j] = new Cell(false, i, j);
+							randomBoard[i][j] = new Cell(false, i, j, this);
 						}
 
 					} else if (randomBoard[i][j].currentState()) {
 					} else {
-						
+
 						if (random.nextDouble() > 0.999 && numOfAlives < 3000) {
-							randomBoard[i][j] = new Cell(true, i, j);
+							randomBoard[i][j] = new Cell(true, i, j, this);
 							numOfAlives++;
 						} else {
-							randomBoard[i][j] = new Cell(false, i, j);
+							randomBoard[i][j] = new Cell(false, i, j, this);
 						}
-					
+
 					}
 				}
 			}
@@ -63,36 +72,17 @@ public class Board implements Runnable {
 	private void updateArrays() {
 		for (int i = 0; i < board.length; i++) {
 			for (int j = 0; j < board[0].length; j++) {
-				board[i][j].setAlive(getSurroundingCells(board[i][j]));
+				board[i][j].setAlive();
 			}
 		}
-	}
-
-	private ArrayList<Cell> getSurroundingCells(Cell cell) {
-		ArrayList<Cell> surroundingCells = new ArrayList<>();
-
-		for (int i = cell.getxCor() - 1; i <= cell.getxCor() + 1; i++) {
-			for (int j = cell.getyCor() - 1; j <= cell.getyCor() + 1; j++) {
-				if (i == cell.getxCor() && j == cell.getyCor()) {
-					continue;
-				}
-				try {
-					surroundingCells.add(board[i][j]);
-				} catch (IndexOutOfBoundsException e) {
-
-				}
-			}
-		}
-		return surroundingCells;
 	}
 
 	public void run() {
-		
 		System.out.print("\033[H\033[2J");
 		System.out.flush();
 
 		updateArrays();
-		
+
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < board.length; i++) {
 			for (int j = 0; j < board[0].length; j++) {
@@ -102,6 +92,18 @@ public class Board implements Runnable {
 		}
 		System.out.print(sb.toString());
 
-		cleanup();	
+		cleanup();
+	}
+
+	public int getLength() {
+		return board.length;
+	}
+
+	public int getWidth() {
+		return board[0].length;
+	}
+
+	public Cell getCellAt(int row, int column) {
+		return board[row][column];
 	}
 }
