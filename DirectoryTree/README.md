@@ -2,11 +2,11 @@ Prints the structure of the directory in a tree format, similar to Unix's "Tree"
 
 TODO: Prioritize directories or files.
 
-## Params:
+### Params:
 
-1. -m <method> 
+* -m <method> 
 	* Takes "i" for iterative, or "r" for recursive.
-2. -f <filename>
+* -f <filename>
 	* Takes the relative or absolute path to the Directory.
-3. -l <depth>
+* -l <depth>
 	* Takes the Maximum depth.
