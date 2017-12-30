@@ -13,11 +13,11 @@ public class DirectoryTree {
 
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals("-l")) {
-				limit = Integer.parseInt(args[i+1]);
+				limit = Integer.parseInt(args[i + 1]);
 			} else if (args[i].equals("-f")) {
-				file = args[i+1];
+				file = args[i + 1];
 			} else if (args[i].equals("-m")) {
-				method = args[i+1];
+				method = args[i + 1];
 			}
 		}
 
@@ -49,11 +49,9 @@ public class DirectoryTree {
 			File[] files = startingDir.listFiles();
 			if (files != null && files.length != 0) {
 				indent.append((isTail ?  "    "  : "│   "));
-				for (int i = 0; i < files.length - 1; i++) {
-					buildTree(depth + 1, indent, dirTree, files[i], limit, false);
+				for (int i = 0; i < files.length; i++) {
+					buildTree(depth + 1, indent, dirTree, files[i], limit, i == files.length - 1 ? true : false);
 				}
-
-				buildTree(depth + 1, indent, dirTree, files[files.length - 1], limit, true);
 				indent.setLength(indent.length() - 4);
 			}
 		}
