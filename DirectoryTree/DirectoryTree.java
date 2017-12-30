@@ -29,13 +29,11 @@ public class DirectoryTree {
 		if (method.equals("i")) {
 			long start = System.nanoTime();
 			result = buildTree(file, limit).toString();
-			long elapsedTime = System.nanoTime() - start;
-			result += "Took: " + ((double) elapsedTime / 1000000000) + " second(s)" + "\n";
+			result += "Took: " + ((double) (System.nanoTime() - start) / 1000000000) + " second(s)" + "\n";
 		} else if (method.equals("r")) {
 			long start = System.nanoTime();
 			result = buildTree(0, new StringBuilder(20), new StringBuilder(10000000), file, limit, true).toString();
-			long elapsedTime = System.nanoTime() - start;
-			result += "Took: " + ((double) elapsedTime / 1000000000) + " second(s)" + "\n";
+			result += "Took: " + ((double) (System.nanoTime() - start) / 1000000000) + " second(s)" + "\n";
 		}
 		return result;
 	}
