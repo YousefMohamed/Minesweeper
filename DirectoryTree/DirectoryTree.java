@@ -13,13 +13,14 @@ public class DirectoryTree {
 
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals("-l")) {
-				limit = Integer.parseInt(args[i + 1]);
+				limit = Integer.parseInt(args[i+1]);
 			} else if (args[i].equals("-f")) {
-				file = args[i + 1];
+				file = args[i+1];
 			} else if (args[i].equals("-m")) {
-				method  = args[i + 1];
+				method = args[i+1];
 			}
 		}
+
 		System.out.print(buildTree(new File(file), limit, method));
 	}
 
@@ -65,7 +66,7 @@ public class DirectoryTree {
 	public static StringBuilder buildTree(File startingDir, int limit) {
 
 		Stack<File> stack = new Stack<>();
-		stack.add(startingDir);
+		stack.push(startingDir);
 
 		// Another Implemenation (Removes the need for depth & changes values) (Possibly less efficient);
 		// Stack<File> parents = new Stack<>();
@@ -74,9 +75,7 @@ public class DirectoryTree {
 		// File parent = startingDir.getParentFile();
 		File parent = null;
 
-		int changes = 0;
 		int depth = 0;
-
 		boolean isTail = false;
 
 		StringBuilder indent = new StringBuilder(20);
@@ -97,14 +96,14 @@ public class DirectoryTree {
 
 
 			if (parent != null  && !currentFile.getParentFile().equals(parent)) {
+				int changes = 0;
 				File currentFileParent = currentFile.getParentFile();
 				while (!currentFileParent.equals(parent)) {
 					parent = parent.getParentFile();
-					changes += 1;
+					changes++;
 				}
 				indent.setLength(indent.length() - (changes * 4));
 				depth -= changes;
-				changes = 0;
 			}
 
 			// Prevents JVM OutOfMemoryException(Error?), currently not used.
