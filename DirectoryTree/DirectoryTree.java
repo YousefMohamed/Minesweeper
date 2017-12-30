@@ -5,11 +5,6 @@ import java.util.Arrays;
 
 public class DirectoryTree {
 
-	public static String isTailString = "└── ";
-	public static String isntTailString = "├── ";
-	public static String isTailString2 = "    ";
-	public static String isntTailString2 = "│   ";
-
 	public static void main(String[] args) {
 
 		int limit = 5;
@@ -46,7 +41,7 @@ public class DirectoryTree {
 
 	public static StringBuilder buildTree(int depth, StringBuilder indent, StringBuilder dirTree, File startingDir, int limit, boolean isTail) {
 
-		dirTree.append(indent.append((isTail ?  isTailString : isntTailString )).append(startingDir.getName()).append("\n"));
+		dirTree.append(indent.append((isTail ?  "└── " : "├── " )).append(startingDir.getName()).append("\n"));
 		indent.setLength(indent.length() - (startingDir.getName().length() + 5));
 
 		if (startingDir.isFile()) return dirTree;
@@ -54,7 +49,7 @@ public class DirectoryTree {
 		if (depth < limit) {
 			File[] files = startingDir.listFiles();
 			if (files != null && files.length != 0) {
-				indent.append((isTail ?  isTailString2  : isntTailString2));
+				indent.append((isTail ?  "    "  : "│   "));
 				for (int i = 0; i < files.length - 1; i++) {
 					buildTree(depth + 1, indent, dirTree, files[i], limit, false);
 				}
@@ -120,12 +115,12 @@ public class DirectoryTree {
 
 			isTail = stack.empty() ?  true : !stack.peek().getParentFile().equals(currentFile.getParentFile());
 
-			dirTree.append(indent.append((isTail ?  isTailString : isntTailString )).append(currentFile.getName()).append( "\n"));
+			dirTree.append(indent.append((isTail ?  "└── " : "├── " )).append(currentFile.getName()).append( "\n"));
 			indent.setLength(indent.length() - (currentFile.getName().length() + 5));
 
 			if (depth < limit) {
 				if (currentFile.isDirectory() && currentFile.listFiles().length != 0) {
-					indent.append((isTail ?  isTailString2  : isntTailString2));
+					indent.append((isTail ?  "    "  : "│   "));
 					// parents.push(currentFile);
 					parent = currentFile;
 					depth++;
