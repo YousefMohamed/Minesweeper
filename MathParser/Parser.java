@@ -1,5 +1,6 @@
 import java.util.*;
 import javafx.util.Pair;
+import java.util.stream.Collectors;
 
 public class Parser {
 
@@ -14,15 +15,39 @@ public class Parser {
 			if (expression.equalsIgnoreCase("quit")) {
 				running = false;
 			} else {
-				System.out.println("Result: " + parser.eval(expression, 0, expression.length()));
+				System.out.println("Result: " + parser.eval(expression));
 			}
 		}
 		scanner.close();
 	}
 
+	// Pretty sure this isn't the best way to do this.
+	private String preprocess(String exp) {
+		String cleaned = exp.replaceAll("[^\\d+*+-÷×()]", "");
+		List<Character>  stuff = cleaned.chars().mapToObj(c -> (char) c).collect(Collectors.toList());
+		for (int i = 0; i < stuff.size(); i++) {
+			char character = stuff.get(i);
+			if (character == '(') {
+				if (i - 1 >= 0 && Character.isDigit(stuff.get(i - 1))) {
+					stuff.add(i, '*');
+				}
+			} else if (character == ')') {
+				if (i + 1 < stuff.size() && Character.isDigit(stuff.get(i + 1))) {
+					stuff.add(i, '*');
+				}
+			}
+		}
+		return stuff.stream().map(e -> e.toString()).collect(Collectors.joining());
+	}
+
 	// A stupid algorithm that I came up with.
 
-	public double eval(String exp, int start, int end) {
+	public double eval(String exp) {
+		String preprocessed = preprocess(exp);
+		return eval(preprocessed, 0, preprocessed.length());
+	}
+
+	private double eval(String exp, int start, int end) {
 
 		Stack<Pair<Operation, Double>> operations = new Stack<>();
 		Stack<Character> encounteredSymbols = new Stack<>();
@@ -33,12 +58,7 @@ public class Parser {
 			if (current == '(') {
 				int endIndex = findMatchingParenthesis(exp, i);
 				if (endIndex == -1) endIndex = exp.length();
-
-				// I could just pre-process the string, but whatever..  
-				if ((i - 1) >= 0 && Character.isDigit(exp.charAt(i - 1))) encounteredSymbols.push('*');
 				operations.push(determineSignAndOp(encounteredSymbols, eval(exp, i + 1, endIndex)));
-				if ((endIndex + 1) < exp.length() && Character.isDigit(exp.charAt(endIndex + 1))) encounteredSymbols.push('*');
-				
 				i = endIndex;
 			} else if (Character.isDigit(current)) {
 				int endOfNum = getRestOfTheNumber(exp, i);
@@ -50,16 +70,6 @@ public class Parser {
 		}
 
 		return calculateAll(operations);
-	}
-
-	private double calculate(Pair<Operation, Double> first, Pair<Operation, Double> second) {
-		switch (first.getKey()) {
-		case ADD: return first.getValue() + second.getValue();
-		case MULTIPLY: return first.getValue() * second.getValue();
-		case DIV: return second.getValue() / first.getValue();
-		case POW: return Math.pow(second.getValue(), first.getValue());
-		default: return 0;
-		}
 	}
 
 	private double calculateAll(Stack <Pair<Operation, Double>> operations) {
@@ -75,7 +85,7 @@ public class Parser {
 			doOperations(operations, second);
 			second = operations.pop();
 		}
-		operations.push(new Pair<Operation, Double> (second.getKey(), calculate(first, second)));
+		operations.push(new Pair<Operation, Double> (second.getKey(), first.getKey().function.apply(second.getValue(), first.getValue())));
 	}
 
 	private Pair<Operation, Double> determineSignAndOp(Stack<Character> encounteredSymbols, double lastNumber) {
