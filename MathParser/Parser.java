@@ -34,16 +34,15 @@ public class Parser {
 				int endIndex = findMatchingParenthesis(exp, i);
 				if (endIndex == -1) endIndex = exp.length();
 
-				Pair<Operation, Double> operation = determineSignAndOp(encounteredSymbols, eval(exp, i + 1, endIndex));
-				operations.push(operation);
-
+				// I could just pre-process the string, but whatever..  
+				if ((i - 1) >= 0 && Character.isDigit(exp.charAt(i - 1))) encounteredSymbols.push('*');
+				operations.push(determineSignAndOp(encounteredSymbols, eval(exp, i + 1, endIndex)));
+				if ((endIndex + 1) < exp.length() && Character.isDigit(exp.charAt(endIndex + 1))) encounteredSymbols.push('*');
+				
 				i = endIndex;
 			} else if (Character.isDigit(current)) {
 				int endOfNum = getRestOfTheNumber(exp, i);
-
-				Pair<Operation, Double> operation = determineSignAndOp(encounteredSymbols, Double.parseDouble(exp.substring(i, endOfNum + 1)));
-				operations.push(operation);
-
+				operations.push(determineSignAndOp(encounteredSymbols, Double.parseDouble(exp.substring(i, endOfNum + 1))));
 				i = endOfNum;
 			} else {
 				encounteredSymbols.push(current);
@@ -64,7 +63,7 @@ public class Parser {
 	}
 
 	private double calculateAll(Stack <Pair<Operation, Double>> operations) {
-		while (operations.size() != 1) {
+		while (operations.size() > 1) {
 			doOperations(operations, operations.pop());
 		}
 		return operations.pop().getValue();
