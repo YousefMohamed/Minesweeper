@@ -11,7 +11,11 @@ public class Parser {
 		while (running) {
 			System.out.print("Expression to evaluate: ");
 			String expression = scanner.nextLine();
-			System.out.println("Result: " + parser.eval(expression, 0, expression.length()));
+			if (expression.equalsIgnoreCase("quit")) {
+				running = false;
+			} else {
+				System.out.println("Result: " + parser.eval(expression, 0, expression.length()));
+			}
 		}
 		scanner.close();
 	}
@@ -55,7 +59,7 @@ public class Parser {
 
 	private int getRestOfTheNumber(String exp, int start) {
 		int i = start;
-		while (i + 1 < exp.length() && Character.isDigit(exp.charAt(i + 1))) {
+		while (i + 1 < exp.length() && (Character.isDigit(exp.charAt(i + 1)) || (exp.charAt(i + 1) == '.'))) {
 			i++;
 		}
 		return i;
@@ -68,7 +72,7 @@ public class Parser {
 		case ADD: values.push(operation.getValue()); break;
 		case MULTIPLY: values.push(values.pop() * operation.getValue()); break;
 		case DIV: values.push(values.pop() / operation.getValue()); break;
-		// case POW: values.push(Math.pow(values.pop(), operation.getValue())); break;
+			// case POW: values.push(Math.pow(values.pop(), operation.getValue())); break;
 		}
 	}
 
