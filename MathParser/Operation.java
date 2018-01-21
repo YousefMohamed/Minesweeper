@@ -1,4 +1,4 @@
-import java.util.function.*;
+import java.util.function.BiFunction;
 
 public enum Operation {
 	ADD (0, (a, b) -> a + b ),
