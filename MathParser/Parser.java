@@ -24,7 +24,7 @@ public class Parser {
 
 	public double eval(String exp, int start, int end) {
 
-		Stack<Double> values = new Stack<>();
+		Stack<Pair<Operation, Double>> operations = new Stack<>();
 		Stack<Character> encounteredSymbols = new Stack<>();
 
 		for (int i = start; i < end; i++) {
@@ -35,14 +35,14 @@ public class Parser {
 				if (endIndex == -1) endIndex = exp.length();
 
 				Pair<Operation, Double> operation = determineSignAndOp(encounteredSymbols, eval(exp, i + 1, endIndex));
-				doOperation(operation, values);
+				operations.push(operation);
 
 				i = endIndex;
 			} else if (Character.isDigit(current)) {
 				int endOfNum = getRestOfTheNumber(exp, i);
 
 				Pair<Operation, Double> operation = determineSignAndOp(encounteredSymbols, Double.parseDouble(exp.substring(i, endOfNum + 1)));
-				doOperation(operation, values);
+				operations.push(operation);
 
 				i = endOfNum;
 			} else {
@@ -50,30 +50,33 @@ public class Parser {
 			}
 		}
 
-		double sum = 0;
-		while (!values.empty()) sum += values.pop();
-
-		return sum;
-
+		return calculateAll(operations);
 	}
 
-	private int getRestOfTheNumber(String exp, int start) {
-		int i = start;
-		while (i + 1 < exp.length() && (Character.isDigit(exp.charAt(i + 1)) || (exp.charAt(i + 1) == '.'))) {
-			i++;
+	private double calculate(Pair<Operation, Double> first, Pair<Operation, Double> second) {
+		switch (first.getKey()) {
+		case ADD: return first.getValue() + second.getValue();
+		case MULTIPLY: return first.getValue() * second.getValue();
+		case DIV: return second.getValue() / first.getValue();
+		case POW: return Math.pow(second.getValue(), first.getValue());
+		default: return 0;
 		}
-		return i;
 	}
 
-	private void doOperation(Pair<Operation, Double> operation, Stack<Double> values) {
-		Operation op = operation.getKey();
-
-		switch (op) {
-		case ADD: values.push(operation.getValue()); break;
-		case MULTIPLY: values.push(values.pop() * operation.getValue()); break;
-		case DIV: values.push(values.pop() / operation.getValue()); break;
-			// case POW: values.push(Math.pow(values.pop(), operation.getValue())); break;
+	private double calculateAll(Stack <Pair<Operation, Double>> operations) {
+		while (operations.size() != 1) {
+			doOperations(operations, operations.pop());
 		}
+		return operations.pop().getValue();
+	}
+
+	private void doOperations(Stack<Pair<Operation, Double>> operations, Pair<Operation, Double> first) {
+		Pair<Operation, Double> second = operations.pop();
+		while (second.getKey().priority > first.getKey().priority) {
+			doOperations(operations, second);
+			second = operations.pop();
+		}
+		operations.push(new Pair<Operation, Double> (second.getKey(), calculate(first, second)));
 	}
 
 	private Pair<Operation, Double> determineSignAndOp(Stack<Character> encounteredSymbols, double lastNumber) {
@@ -84,7 +87,7 @@ public class Parser {
 
 		switch (lastSymbol) {
 		case '-': value = lastNumber * -1; break;
-		//case '^': op = Operation.POW; break;
+		case '^': op = Operation.POW; break;
 		case '÷':
 		case '/': op = Operation.DIV; break;
 		case '×':
@@ -95,7 +98,7 @@ public class Parser {
 	}
 
 
-	public int findMatchingParenthesis(String exp, int index) {
+	private int findMatchingParenthesis(String exp, int index) {
 		int num = 0;
 		for (int i = index; i < exp.length(); i++) {
 			if (exp.charAt(i) == '(') {
@@ -109,11 +112,13 @@ public class Parser {
 		}
 		return -1;
 	}
+
+	private int getRestOfTheNumber(String exp, int start) {
+		int i = start;
+		while (i + 1 < exp.length() && (Character.isDigit(exp.charAt(i + 1)) || (exp.charAt(i + 1) == '.'))) {
+			i++;
+		}
+		return i;
+	}
 }
 
-enum Operation {
-	ADD,
-	MULTIPLY,
-	DIV,
-	//POW;
-}
