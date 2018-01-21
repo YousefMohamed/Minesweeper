@@ -1,4 +1,7 @@
-import java.util.*;
+import java.util.List;
+import java.util.Arrays;
+import java.util.Stack;
+import java.util.Scanner;
 import javafx.util.Pair;
 import java.util.stream.Collectors;
 
