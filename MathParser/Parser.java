@@ -1,9 +1,6 @@
-import java.util.List;
-import java.util.Arrays;
 import java.util.Stack;
 import java.util.Scanner;
 import javafx.util.Pair;
-import java.util.stream.Collectors;
 import java.lang.StringBuilder;
 
 public class Parser {
@@ -27,7 +24,7 @@ public class Parser {
 
 	// Pretty sure this isn't the best way to do this.
 	private String preprocess(String exp) {
-		String cleaned = exp.replaceAll("[^\\d*-+÷×()]", "");
+		String cleaned = exp.replaceAll("[^\\d*--+÷×()]", "");
 		StringBuilder builder = new StringBuilder(cleaned);
 		for (int i = 0; i < builder.length(); i++) {
 			char character = builder.charAt(i);
@@ -94,7 +91,7 @@ public class Parser {
 
 	private Pair<Operator, Double> determineSignAndOp(Stack<Character> encounteredSymbols, double lastNumber) {
 
-		Character lastSymbol = encounteredSymbols.empty() ? ' ' : encounteredSymbols.pop();
+		char lastSymbol = encounteredSymbols.empty() ? ' ' : encounteredSymbols.pop();
 		Operator op = Operator.ADD;
 		double value = lastNumber;
 
