@@ -24,7 +24,7 @@ public class Parser {
 
 	// Pretty sure this isn't the best way to do this.
 	private String preprocess(String exp) {
-		String cleaned = exp.replaceAll("[^\\d*--+÷×()]", "");
+		String cleaned = exp.replaceAll("[^\\d*--+÷×^/()]", "");
 		StringBuilder builder = new StringBuilder(cleaned);
 		for (int i = 0; i < builder.length(); i++) {
 			char character = builder.charAt(i);
