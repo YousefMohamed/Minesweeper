@@ -4,6 +4,7 @@ import java.util.Stack;
 import java.util.Scanner;
 import javafx.util.Pair;
 import java.util.stream.Collectors;
+import java.lang.StringBuilder;
 
 public class Parser {
 
@@ -26,21 +27,23 @@ public class Parser {
 
 	// Pretty sure this isn't the best way to do this.
 	private String preprocess(String exp) {
-		String cleaned = exp.replaceAll("[^\\d+*+-÷×()]", "");
-		List<Character>  stuff = cleaned.chars().mapToObj(c -> (char) c).collect(Collectors.toList());
-		for (int i = 0; i < stuff.size(); i++) {
-			char character = stuff.get(i);
+		String cleaned = exp.replaceAll("[^\\d*-+÷×()]", "");
+		System.out.println(cleaned);
+		StringBuilder builder = new StringBuilder(cleaned);
+		for (int i = 0; i < builder.length(); i++) {
+			char character = builder.charAt(i);
 			if (character == '(') {
-				if (i - 1 >= 0 && Character.isDigit(stuff.get(i - 1))) {
-					stuff.add(i, '*');
+				if (i - 1 >= 0 && (Character.isDigit(builder.charAt(i - 1)) || builder.charAt(i - 1) == ')')) {
+					builder.insert(i, '*');
 				}
 			} else if (character == ')') {
-				if (i + 1 < stuff.size() && Character.isDigit(stuff.get(i + 1))) {
-					stuff.add(i, '*');
+				if (i + 1 < builder.length() && (Character.isDigit(builder.charAt(i + 1)) || builder.charAt(i + 1) == '(')) {
+					builder.insert(i + 1, '*');
 				}
 			}
 		}
-		return stuff.stream().map(e -> e.toString()).collect(Collectors.joining());
+		System.out.println(builder);
+		return builder.toString();
 	}
 
 	// A stupid algorithm that I came up with.
@@ -52,7 +55,7 @@ public class Parser {
 
 	private double eval(String exp, int start, int end) {
 
-		Stack<Pair<Operation, Double>> operations = new Stack<>();
+		Stack<Pair<Operator, Double>> operations = new Stack<>();
 		Stack<Character> encounteredSymbols = new Stack<>();
 
 		for (int i = start; i < end; i++) {
@@ -75,38 +78,38 @@ public class Parser {
 		return calculateAll(operations);
 	}
 
-	private double calculateAll(Stack <Pair<Operation, Double>> operations) {
+	private double calculateAll(Stack <Pair<Operator, Double>> operations) {
 		while (operations.size() > 1) {
 			doOperations(operations, operations.pop());
 		}
 		return operations.pop().getValue();
 	}
 
-	private void doOperations(Stack<Pair<Operation, Double>> operations, Pair<Operation, Double> first) {
-		Pair<Operation, Double> second = operations.pop();
+	private void doOperations(Stack<Pair<Operator, Double>> operations, Pair<Operator, Double> first) {
+		Pair<Operator, Double> second = operations.pop();
 		while (second.getKey().priority > first.getKey().priority) {
 			doOperations(operations, second);
 			second = operations.pop();
 		}
-		operations.push(new Pair<Operation, Double> (second.getKey(), first.getKey().function.apply(second.getValue(), first.getValue())));
+		operations.push(new Pair<Operator, Double> (second.getKey(), first.getKey().function.apply(second.getValue(), first.getValue())));
 	}
 
-	private Pair<Operation, Double> determineSignAndOp(Stack<Character> encounteredSymbols, double lastNumber) {
+	private Pair<Operator, Double> determineSignAndOp(Stack<Character> encounteredSymbols, double lastNumber) {
 
 		Character lastSymbol = encounteredSymbols.empty() ? ' ' : encounteredSymbols.pop();
-		Operation op = Operation.ADD;
+		Operator op = Operator.ADD;
 		double value = lastNumber;
 
 		switch (lastSymbol) {
 		case '-': value = lastNumber * -1; break;
-		case '^': op = Operation.POW; break;
+		case '^': op = Operator.POW; break;
 		case '÷':
-		case '/': op = Operation.DIV; break;
+		case '/': op = Operator.DIV; break;
 		case '×':
-		case '*': op = Operation.MULTIPLY; break;
+		case '*': op = Operator.MULTIPLY; break;
 		}
 
-		return encounteredSymbols.empty() ? new Pair<Operation, Double>(op, value) : determineSignAndOp(encounteredSymbols, value);
+		return encounteredSymbols.empty() ? new Pair<Operator, Double>(op, value) : determineSignAndOp(encounteredSymbols, value);
 	}
 
 
