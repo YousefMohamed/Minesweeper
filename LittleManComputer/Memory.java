@@ -4,12 +4,13 @@ public class Memory {
 
 	public Memory(int size){
 		memory = new Address[size];
-		for(int i = 0; i< memory.length; i++){
+		for(int i = 0; i < memory.length; i++){
 			memory[i] = new Address(0, 0);
 		}
 	}
 
 	private class Address {
+		//Public because accessor methods suck.
 		int instruction;
 		int value;
 
@@ -36,16 +37,22 @@ public class Memory {
 		memory[index].value = (int) ((((double) dat / 100) - memory[index].instruction) * 100);
 	}
 
-	public int setInstructionOf(int index, int instruction){
+	public int setInstructionAt(int index, int instruction){
 		return memory[index].instruction = instruction;
 	}
 
-	public int setValueOf(int index, int value){
+	public int setValueAt(int index, int value){
 		return memory[index].value = value;
 	}
-	
+
 	public int getSize(){
 		return memory.length;
+	}
+
+	public void print(){
+		for(int i = 0; i < memory.length; i++){
+			System.out.print(getAsDat(i) + " ");
+		}
 	}
 }
 

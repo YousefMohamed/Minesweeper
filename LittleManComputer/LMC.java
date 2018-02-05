@@ -2,93 +2,153 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Scanner;
 
 public class LMC {
-
-	private HashMap<String, Integer> labels = new HashMap<>();
-	private Memory memory = new Memory(100);
-
-	private String[] input;
-
-	private int instructionRegister = 0;
-	private int addressRegister = 0;
-
-	private int accumulator = 0;
-	private int datIndex = 0;
-
+	private final String[] input;
 	public LMC(Path path) throws IOException {
-		input = Files.readAllLines(path).stream().map(i -> i.trim()).toArray(String[]::new);
+		// "Loop" and "loop" aren't different, because I'm lazy.
+		input = Files.readAllLines(path).stream().map(i -> i.trim().toLowerCase()).toArray(String[]::new);
 	}
 
 	public void run() {
-		populateRam();
-		Scanner input = new Scanner(System.in);
+
+		Memory memory = new Memory(100);
+		assembleIntoRAM(memory, new HashMap<String, Integer>(), new HashMap<String, List<Integer>>(), input, 0, 0);
+
+		Scanner scanner = new Scanner(System.in);
+		scanner.nextLine();
+		int accumulator = 0;
 
 		for (int i = 0; i < memory.getSize(); i++) {
 			int instruction = memory.getInstructionAt(i);
 			int value = memory.getValueAt(i);
 
 			switch (instruction) {
-			case 0: System.exit(0); break;
+			case 0:	System.exit(0); break;
 			case 1: accumulator += memory.getAsDat(value); break;
 			case 2: accumulator -= memory.getAsDat(value); break;
 			case 3: memory.setAsDat(value, accumulator); break;
-			case 5: memory.getAsDat(value); break;
-			case 6: i = value; break;
-			case 7: if (accumulator == 0) i = value; break;
-			case 8: if (accumulator > 0) i = value; break;
+			case 5: accumulator = memory.getAsDat(value); break;
+			case 6: i = value - 1; break;
+			case 7: if (accumulator == 0) i = value - 1; break;
+			case 8: if (accumulator > 0) i = value - 1; break;
 			case 9:
 				if (value == 1) {
-					accumulator = Integer.parseInt(input.nextLine());
-					break;
+					accumulator = Integer.parseInt(scanner.nextLine());
 				} else if (value == 2) {
-					System.out.println(accumulator);
-					break;
+					System.out.print(accumulator);
+				} else if (value == 22){
+					System.out.print((char) accumulator);
+				}
+				break;
+			}
+
+			// Overflow & Underflow
+
+			if(accumulator > 999){
+				accumulator *= -1;
+				while(accumulator < -999){
+					accumulator += 999;
+				}
+			} else if(accumulator < -999){
+				accumulator *= -1;
+				while(accumulator > 999){
+					accumulator -= 999;
 				}
 			}
 		}
 	}
 
-	public void populateRam() {
-		for (int i = 0; i < input.length; i++) {
-			String[] current = input[i].split("\\s+");
-			if (current.length > 2) {
-				System.out.println("Invalid stuff");
+
+	public void assembleIntoRAM(Memory memory, HashMap<String, Integer> labels, HashMap<String, List<Integer>> waiting, String[] input2, int currentLine, int start) {
+		String[] current = input2[currentLine].split("\\s+");
+		boolean shouldSetValue = true;
+		switch(current[start]){
+		case "hlt":
+			memory.setInstructionAt(currentLine, 0);
+			shouldSetValue = false;
+			break;
+		case "add":
+			memory.setInstructionAt(currentLine, 1);
+			break;
+		case "sub":
+			memory.setInstructionAt(currentLine, 2);
+			break;
+		case "sta":
+			memory.setInstructionAt(currentLine, 3);
+			break;
+		case "sto":
+			memory.setInstructionAt(currentLine, 3);
+			break;
+		case "lda":
+			memory.setInstructionAt(currentLine, 5);
+			break;
+		case "bra":
+			memory.setInstructionAt(currentLine, 6);
+			break;
+		case "brz":
+			memory.setInstructionAt(currentLine, 7);
+			break;
+		case "brp":
+			memory.setInstructionAt(currentLine, 8);
+			break;
+		case "inp":
+			memory.setInstructionAt(currentLine, 9);
+			memory.setValueAt(currentLine, 1);
+			shouldSetValue = false;
+			break;
+		case "out":
+			memory.setInstructionAt(currentLine, 9);
+			memory.setValueAt(currentLine, 2);
+			shouldSetValue = false;
+			break;
+		case "otc":
+			memory.setInstructionAt(currentLine, 9);
+			memory.setValueAt(currentLine, 22);
+			shouldSetValue = false;
+			break;
+		case "dat":
+			// You cannot call other labels here, because I'm lazy.
+			if((start + 1) >= current.length){
+				memory.setAsDat(currentLine, 0);
 			} else {
-				String currentString = current[0];
-				if (currentString.equalsIgnoreCase("add")) {
-					memory.setInstructionOf(i, 1);
-					memory.setValueOf(i, Integer.parseInt(current[1]));
-				} else if (currentString.equalsIgnoreCase("sub")) {
-					memory.setInstructionOf(i, 2);
-					memory.setValueOf(i, Integer.parseInt(current[1]));
-				} else if (currentString.equalsIgnoreCase("hlt")) {
-					memory.setInstructionOf(i, 0);
-				} else if (currentString.equalsIgnoreCase("brz")) {
-					memory.setInstructionOf(i, 7);
-					memory.setValueOf(i, Integer.parseInt(current[1]));
-				} else if (currentString.equalsIgnoreCase("sta")) {
-					memory.setInstructionOf(i, 3);
-					memory.setValueOf(i, Integer.parseInt(current[1]));
-				} else if (currentString.equalsIgnoreCase("lda")) {
-					memory.setInstructionOf(i, 5);
-					memory.setValueOf(i, Integer.parseInt(current[1]));
-				} else if (currentString.equalsIgnoreCase("bra")) {
-					memory.setInstructionOf(i, 6);
-					memory.setValueOf(i, Integer.parseInt(current[1]));
-				} else if (currentString.equalsIgnoreCase("brp")) {
-					memory.setInstructionOf(i, 8);
-					memory.setValueOf(i, Integer.parseInt(current[1]));
-				} else if (currentString.equalsIgnoreCase("inp")) {
-					memory.setInstructionOf(i, 9);
-					memory.setValueOf(i, 01);
-				} else if (currentString.equalsIgnoreCase("out")) {
-					memory.setInstructionOf(i, 9);
-					memory.setValueOf(i, 02);
+				memory.setAsDat(currentLine, Integer.parseInt(current[start + 1]));
+			}
+			shouldSetValue = false;
+			break;
+		default:
+			labels.put(current[start], currentLine);
+			if(start + 1 < current.length) assembleIntoRAM(memory, labels, waiting, input2, currentLine, start + 1);
+			if(waiting.get(current[start]) != null){
+				for(int currentRegister: waiting.get(current[start])){
+					memory.setValueAt(currentRegister, labels.get(current[start]));
 				}
 			}
+			shouldSetValue = false;
+			break;
+		}
+
+		if(shouldSetValue){
+			if(labels.get(current[start + 1]) == null){
+				try{
+					int value = Integer.parseInt(current[start + 1]);
+					memory.setValueAt(currentLine, value);
+				} catch(NumberFormatException e){
+					List<Integer> list = waiting.get(current[start + 1]) == null ? new ArrayList<Integer>() : waiting.get(current[start + 1]);
+					list.add(currentLine);
+					waiting.put(current[start + 1], list);
+				}
+			} else{
+				memory.setValueAt(currentLine, labels.get(current[start + 1]));
+			}
+		}
+
+		if((currentLine + 1) < input2.length){
+			assembleIntoRAM(memory, labels, waiting, input2, currentLine + 1, 0);
 		}
 	}
 
@@ -100,3 +160,4 @@ public class LMC {
 		}
 	}
 }
+
