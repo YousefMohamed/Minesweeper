@@ -20,7 +20,6 @@ public class LMC {
 		assembleIntoRAM(memory, new HashMap<String, Integer>(), new HashMap<String, List<Integer>>(), input, 0, 0);
 
 		Scanner scanner = new Scanner(System.in);
-		scanner.nextLine();
 		int accumulator = 0;
 
 		for (int i = 0; i < memory.getSize(); i++) {
@@ -35,7 +34,7 @@ public class LMC {
 			case 5: accumulator = memory.getAsDat(value); break;
 			case 6: i = value - 1; break;
 			case 7: if (accumulator == 0) i = value - 1; break;
-			case 8: if (accumulator > 0) i = value - 1; break;
+			case 8: if (accumulator >= 0) i = value - 1; break;
 			case 9:
 				if (value == 1) {
 					accumulator = Integer.parseInt(scanner.nextLine());
@@ -45,20 +44,9 @@ public class LMC {
 					System.out.print((char) accumulator);
 				}
 				break;
-			}
-
-			// Overflow & Underflow
-
-			if(accumulator > 999){
-				accumulator *= -1;
-				while(accumulator < -999){
-					accumulator += 999;
-				}
-			} else if(accumulator < -999){
-				accumulator *= -1;
-				while(accumulator > 999){
-					accumulator -= 999;
-				}
+			default:
+				System.out.println("Unknown instruction at address: " + i);
+				break;
 			}
 		}
 	}
@@ -134,15 +122,15 @@ public class LMC {
 
 		if(shouldSetValue){
 			if(labels.get(current[start + 1]) == null){
-				try{
+				try {
 					int value = Integer.parseInt(current[start + 1]);
 					memory.setValueAt(currentLine, value);
-				} catch(NumberFormatException e){
+				} catch (NumberFormatException e){
 					List<Integer> list = waiting.get(current[start + 1]) == null ? new ArrayList<Integer>() : waiting.get(current[start + 1]);
 					list.add(currentLine);
 					waiting.put(current[start + 1], list);
 				}
-			} else{
+			} else {
 				memory.setValueAt(currentLine, labels.get(current[start + 1]));
 			}
 		}
