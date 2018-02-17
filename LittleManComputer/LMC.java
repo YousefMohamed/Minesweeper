@@ -3,52 +3,72 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
+
+import UI.Components.Textbox;
+import UI.Components.View;
+import term.TermStyle;
+import term.Terminal;
 
 public class LMC {
 	private final String[] input;
+	Memory memory = new Memory(100);
 	public LMC(Path path) throws IOException {
 		// "Loop" and "loop" aren't different, because I'm lazy.
-		input = Files.readAllLines(path).stream().map(i -> i.trim().toLowerCase()).toArray(String[]::new);
+		input = Files.readAllLines(path).stream().map(i -> i.trim()).toArray(String[]::new);
 	}
 
-	public void run() {
+	public void run() throws IOException, InterruptedException {
 
-		Memory memory = new Memory(100);
+		Terminal.setTermToCharBreak();
+		Terminal.hideCursor();
+		Terminal.clear();
+		View view = new View();
+		Textbox box = new Textbox(10, 10, "Hello");
+		view.add(box);
+		Terminal.setStyle(TermStyle.STRIKETHROUGH);
+
 		assembleIntoRAM(memory, new HashMap<String, Integer>(), new HashMap<String, List<Integer>>(), input, 0, 0);
 
 		Scanner scanner = new Scanner(System.in);
 		int accumulator = 0;
 
 		for (int i = 0; i < memory.getSize(); i++) {
+			if(System.in.available() != 0){
+				System.out.println((char) System.in.read());
+			}
+			box.setText("Hello" + i);
+			view.draw();
+			Terminal.flush();
 			int instruction = memory.getInstructionAt(i);
 			int value = memory.getValueAt(i);
-
 			switch (instruction) {
 			case 0:	System.exit(0); break;
 			case 1: accumulator += memory.getAsDat(value); break;
 			case 2: accumulator -= memory.getAsDat(value); break;
 			case 3: memory.setAsDat(value, accumulator); break;
 			case 5: accumulator = memory.getAsDat(value); break;
-			case 6: i = value - 1; break;
-			case 7: if (accumulator == 0) i = value - 1; break;
-			case 8: if (accumulator >= 0) i = value - 1; break;
+			case 6: i = value; break;
+			case 7: if (accumulator == 0) i = value; break;
+			case 8: if (accumulator >= 0) i = value; break;
 			case 9:
 				if (value == 1) {
 					accumulator = Integer.parseInt(scanner.nextLine());
 				} else if (value == 2) {
-					System.out.print(accumulator);
+					//System.out.print(accumulator);
 				} else if (value == 22){
-					System.out.print((char) accumulator);
+					//System.out.print((char) accumulator);
 				}
 				break;
 			default:
-				System.out.println("Unknown instruction at address: " + i);
+				//System.out.println("Unknown instruction at address: " + i);
 				break;
 			}
 		}
+		Terminal.showCursor();
+		Terminal.restore();
 	}
 
 
@@ -83,7 +103,6 @@ public class LMC {
 			break;
 		case "brp":
 			memory.setInstructionAt(currentLine, 8);
-			break;
 		case "inp":
 			memory.setInstructionAt(currentLine, 9);
 			memory.setValueAt(currentLine, 1);
@@ -140,7 +159,7 @@ public class LMC {
 		}
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals("-f")) {
 				new LMC(Paths.get(args[i + 1])).run();
