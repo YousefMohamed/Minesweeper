@@ -9,9 +9,7 @@ public class TrieNode {
 	public TrieNode(String... text) {
 		this.children = new ArrayList<>();
 		this.character = '\0';
-		for(String string: text) {
-			insert(string);
-		}
+		Arrays.stream(text).forEach(this::insert);
 	}
 
 	private TrieNode(char character) {

@@ -10,7 +10,6 @@ public class Tokenizer {
 	}
 
 	public String next() {
-
 		final int lastChar = currentChar;
 		int startedmatching = currentChar;
 
