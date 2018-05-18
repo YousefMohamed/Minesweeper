@@ -19,14 +19,15 @@ public class TrieNode {
 
 	private void insert(String string) {
 		TrieNode currentNode = this;
-		for(int i = 0; i <= string.length(); i++) {
-			TrieNode nextNode = currentNode.getNode(i == string.length() ? '\0' : string.charAt(i));
+		for(int i = 0; i < string.length(); i++) {
+			TrieNode nextNode = currentNode.getNode(string.charAt(i));
 			if(nextNode == null) {
-				nextNode = new TrieNode(i == string.length() ? '\0' : string.charAt(i));
+				nextNode = new TrieNode(string.charAt(i));
 				currentNode.children.add(nextNode);
 			}
 			currentNode = nextNode;
 		}
+		currentNode.children.add(new TrieNode('\0'));
 	}
 
 	public TrieNode getNode(char character) {
