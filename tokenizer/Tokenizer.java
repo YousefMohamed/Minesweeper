@@ -37,6 +37,7 @@ public class Tokenizer {
 			}
 			currentChar++;
 		}
+
 		return source.substring(lastChar);
 	}
 

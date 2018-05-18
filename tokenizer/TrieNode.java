@@ -5,10 +5,10 @@ public class TrieNode {
 
 	public final char character;
 	private final ArrayList<TrieNode> children;
+	private static final TrieNode endNode = new TrieNode('\0');
 
 	public TrieNode(String... text) {
-		this.children = new ArrayList<>();
-		this.character = '\0';
+		this('\0');
 		Arrays.stream(text).forEach(this::insert);
 	}
 
@@ -27,7 +27,7 @@ public class TrieNode {
 			}
 			currentNode = nextNode;
 		}
-		currentNode.children.add(new TrieNode('\0'));
+		currentNode.children.add(endNode);
 	}
 
 	public TrieNode getNode(char character) {
