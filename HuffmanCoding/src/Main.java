@@ -57,7 +57,7 @@ public class Main {
 		while (queue.size() > 1) {
 			Node first = queue.poll();
 			Node second = queue.poll();
-			Node newNode = new Node(' ', first.frequency + second.frequency, true);
+			Node newNode = new Node('\0', first.frequency + second.frequency, true);
 			newNode.leftChild = first;
 			newNode.rightChild = second;
 			queue.offer(newNode);
