@@ -10,21 +10,35 @@ public class Tokenizer {
 	}
 
 	public String next() {
-		for(int i = currentChar; i < source.length(); i++) {
-			TrieNode current = root;
-			int j = i;
-			while(j < source.length() && current.getNode(source.charAt(j)) != null) {
-				current = current.getNode(source.charAt(j));
-				j++;
+		final int lastChar = currentChar;
+		int startedmatching = currentChar;
+
+		boolean matching = false;
+		TrieNode current = root;
+
+		while(matching || currentChar < source.length()) {
+			if(matching) {
+				TrieNode nextNode = currentChar < source.length() ? current.getNode(source.charAt(currentChar)) : null;
+				if(nextNode == null && current.getNode('\0') != null) {
+					matching = false;
+					return source.substring(lastChar, startedmatching);
+				} else if(nextNode != null) {
+					current = nextNode;
+				} else {
+					matching = false;
+				}
+			} else {
+				TrieNode nextNode = root.getNode(source.charAt(currentChar));
+				if(nextNode != null){
+					matching = true;
+					startedmatching = currentChar;
+					current = nextNode;
+				}
 			}
-			if(current.getNode('\0') != null) {
-				String val = source.substring(currentChar, i);
-				currentChar = j;
-				return val;
-			}
+			currentChar++;
 		}
 
-		return source.substring(currentChar);
+		return source.substring(lastChar);
 	}
 
 	public boolean hasNext() {
